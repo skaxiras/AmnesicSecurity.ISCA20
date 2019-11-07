@@ -107,9 +107,11 @@
   title =	 {{CEASER}: Mitigating Conflict-Based Cache Attacks via
                   Encrypted-Address and Remapping},
   author =	 {Qureshi, Moinuddin K.},
-  booktitle =	 {MICRO 51},
+  booktitle =	 MICRO,
   year =	 2018,
+  pages =        {775-787},
   doi =          {10.1109/MICRO.2018.00068},
+  month =	 oct,
   publisher =	 IEEE,
   address =	 IEEE_ADDRESS,  
 }
@@ -192,19 +194,26 @@
                   Automatically-Synthesized Attacks Exploiting
                   Invalidation-Based Coherence Protocols},
   url =		 {http://arxiv.org/abs/1802.03802},
-  author =	 {Trippel, Caroline and others}
+  author =	 {Trippel, Caroline and Lustig, Daniel and Martonosi,
+                  Margaret},
   year =	 2018,
   eprinttype =	 {arxiv},
   eprint =	 {1802.03802},
 }
 
 @InProceedings{yan_invisispec:MICRO2018,
-  author =	 {Mengjia Yan and others},
+  author =	 {Mengjia Yan and Jiho Choi and Dimitrios Skarlatos
+                  and Adam Morrison and Christopher W. Fletcher and
+                  Josep Torrellas},
   title =	 {{InvisiSpec}: Making Speculative Execution Invisible
                   in the Cache Hierarchy},
-  booktitle =	 {MICRO 51},
+  booktitle =	 MICRO,
   doi =          {10.1109/MICRO.2018.00042},
   year =	 2018,
+  month =	 oct,
+  pages =        {428-441},
+  publisher =	 IEEE,
+  address =	 IEEE_ADDRESS,
 }
 
 @inproceedings{liu_random_2014,
@@ -222,6 +231,7 @@
 @inproceedings{gruss_cache_2015,
   title =	 {Cache Template Attacks: Automating Attacks on Inclusive
                   Last-Level Caches},
+  pages =	 {897--912},
   booktitle =	 SECURITY,
   author =	 {Gruss, Daniel and Spreitzer, Raphael and Mangard, Stefan},
   year =	 2015,
@@ -250,7 +260,8 @@
   doi =		 {10.1145/2897845.2897867},
   pages =	 {353--364},
   booktitle =	 ASIACCS,
-  author =	 {Irazoqui, Gorka and others},
+  author =	 {Irazoqui, Gorka and Eisenbarth, Thomas and Sunar,
+                  Berk},
   year =	 2016,
   publisher =	 ACM,
   address =	 ACM_ADDRESS,
@@ -265,7 +276,7 @@
   pages =	 {8--16},
   number =	 5,
   journal =	 IEEEMICRO,
-  author =	 {Liu, Fangfei and others},
+  author =	 {Liu, Fangfei and Wu, Hao and Mai, Kenneth and Lee, Ruby B.},
   year =	 2016,
   month =	 sep,
   publisher =	 IEEE,
@@ -304,7 +315,10 @@
 @misc{lipp_meltdown_2018,
   title =	 {Meltdown},
   url =		 {http://arxiv.org/abs/1801.01207},
-  author =	 {Lipp, Moritz and others}
+  author =	 {Lipp, Moritz and Schwarz, Michael and Gruss, Daniel
+                  and Prescher, Thomas and Haas, Werner and Mangard,
+                  Stefan and Kocher, Paul and Genkin, Daniel and
+                  Yarom, Yuval and Hamburg, Mike},
   year =	 2018,
   month =	 jan,
   eprinttype =	 {arxiv},
@@ -313,7 +327,10 @@
 
 @inproceedings{kocher_spectre_2018,
   title =	 {Spectre attacks: Exploiting speculative execution},
-  author =	 {Kocher, Paul and others},
+  author =	 {Kocher, Paul and Genkin, Daniel and Gruss, Daniel
+                  and Haas, Werner and Hamburg, Mike and Lipp, Moritz
+                  and Mangard, Stefan and Prescher, Thomas and
+                  Schwarz, Michael and Yarom, Yuval},
   booktitle =	 SP,
   year =	 2019,
   month =	 may,
@@ -328,6 +345,7 @@
   author =	 {Yarom, Yuval and Falkner, Katrina},
   year =	 2014,
   isbn =	 {978-1-931971-15-7},
+  pages =	 {719--732},
   OPTurl =          {https://www.usenix.org/conference/usenixsecurity14/technical-sessions/presentation/yarom},
   publisher =	 {{USENIX} Association},
 }
@@ -592,14 +610,15 @@
 }
 
 @inproceedings{pessl_drama:_2016,
-  title =	 {DRAMA: Exploiting {DRAM} Addressing for
-                  Cross-CPU Attacks.},
+  title =	 {{DRAMA}: Exploiting {DRAM} Addressing for
+                  Cross-{CPU} Attacks.},
+  pages =	 {565--581},
   booktitle =	 SECURITY,
   author =	 {Pessl, Peter and Gruss, Daniel and Maurice,
                   Cl\'ementine and Schwarz, Michael and Mangard,
                   Stefan},
   year =	 2016, 
-  publisher =	 {USENIX Association}, 
+  publisher =	 {{USENIX} Association}, 
 }
 
 @inproceedings{wu_whispers_2012,
@@ -944,12 +963,14 @@
 }
 
 @inproceedings{liu15llc,
-  author =	 {Fangfei Liu and others},
-  booktitle =	 {IEEE Symp. on Security and Privacy},
+  author =	 {Fangfei Liu and Yuval Yarom and Qian Ge and Gernot Heiser and Ruby B. Lee},
+  booktitle =	 SP,
   title =	 {Last-Level Cache Side-Channel Attacks are Practical},
   year =	 2015,
+  pages =	 {605-622},
   doi =		 {10.1109/SP.2015.43},
   ISSN =	 {1081-6011},
+  month =	 may,
   publisher =	 IEEE,
   address =	 IEEE_ADDRESS,
 }
@@ -1012,64 +1033,85 @@
   author =	 {Sakalis, Christos and Alipour, Mehdi and Ros, Alberto and
     Jimborean, Alexandra and Kaxiras, Stefanos and Sj\"alander Magnus},
   title =	 {Ghost Loads: What is the Cost of Invisible Speculation?},
-  booktitle={ACM Computing Frontiers},
+  booktitle =	 CF,
   year =	 2019,
+  isbn = {978-1-4503-6685-4},
+  url =		 {http://doi.acm.org/10.1145/3310273.3321558},
+  doi =		 {10.1145/3310273.3321558},
+  publisher =	 ACM,
+  address =	 ACM_ADDRESS,
+  pages = {153--163},
+  numpages = {11},
 }
 
 @inproceedings{skarlatos2019microscope,
   title={MicroScope: enabling microarchitectural replay attacks},
-  author={Skarlatos, Dimitrios and others},
-  booktitle={ISCA 46},
+  author={Skarlatos, Dimitrios and Yan, Mengjia and Gopireddy, Bhargava and Sprabery, Read and Torrellas, Josep and Fletcher, Christopher W},
+  booktitle={Proceedings of the 46th International Symposium on Computer Architecture},
+  pages={318--331},
   year={2019},
+  organization={ACM}
 }
 
 @inproceedings{sakalis2019ghost,
   title={Ghost loads: what is the cost of invisible speculation?},
   author={Sakalis, Christos and Alipour, Mehdi and Ros, Alberto and Jimborean, Alexandra and Kaxiras, Stefanos and Sj{\"a}lander, Magnus},
-  booktitle={ACM Computing Frontiers},
+  booktitle={Proceedings of the 16th ACM International Conference on Computing Frontiers},
+  pages={153--163},
   year={2019},
+  organization={ACM}
 }
 
 @inproceedings{sakalis2019efficient,
   title={Efficient Invisible Speculative Execution Through Selective Delay and Value Prediction},
   author={Sakalis, Christos and Kaxiras, Stefanos and Ros, Alberto and Jimborean, Alexandra and Sj{\"a}lander, Magnus},
-  booktitle={ISCA 46},
+  booktitle={Proceedings of the 46th International Symposium on Computer Architecture},
+  pages={723--735},
   year={2019},
+  organization={ACM}
 }
 
 @inproceedings{weisse2019nda,
   title={NDA: Preventing Speculative Execution Attacks at Their Source},
-  author={Weisse, Ofir and others},
-  booktitle={MICRO 52},
+  author={Weisse, Ofir and Neal, Ian and Loughlin, Kevin and Wenisch, Thomas F and Kasikci, Baris},
+  booktitle={Proceedings of the 52nd Annual IEEE/ACM International Symposium on Microarchitecture},
+  pages={572--586},
   year={2019},
+  organization={ACM}
 }
 
 @inproceedings{saileshwar2019cleanupspec,
   title={CleanupSpec: An Undo Approach to Safe Speculation},
   author={Saileshwar, Gururaj and Qureshi, Moinuddin K},
-  booktitle={MICRO 52},
+  booktitle={Proceedings of the 52nd Annual IEEE/ACM International Symposium on Microarchitecture},
+  pages={73--86},
   year={2019},
+  organization={ACM}
 }
 
 @article{mcilroy2019spectre,
   title={Spectre is here to stay: An analysis of side-channels and speculative execution},
-  author={Mcilroy, Ross and others},
-  journal={arXiv:1902.05178},
+  author={Mcilroy, Ross and Sevcik, Jaroslav and Tebbi, Tobias and Titzer, Ben L and Verwaest, Toon},
+  journal={arXiv preprint arXiv:1902.05178},
   year={2019}
 }
 
 @inproceedings{cock2014last,
   title={The last mile: An empirical study of timing channels on seL4},
-  author={Cock, David and others},
-  booktitle={Conference on Computer and Communications Security},
-  year={2014}
+  author={Cock, David and Ge, Qian and Murray, Toby and Heiser, Gernot},
+  booktitle={Proceedings of the 2014 ACM SIGSAC Conference on Computer and Communications Security},
+  pages={570--581},
+  year={2014},
+  organization={ACM}
 }
 
-@inproceedings{brooks2000wattch,
+@book{brooks2000wattch,
   title={Wattch: A framework for architectural-level power analysis and optimizations},
-  author={Brooks, David and others},
-  booktitle={ISCA 27},
-  year={2000}
+  author={Brooks, David and Tiwari, Vivek and Martonosi, Margaret},
+  volume={28},
+  number={2},
+  year={2000},
+  publisher={ACM}
 }
 
 @article{zhang2003hotleakage,
@@ -1102,31 +1144,37 @@
 
 @techreport{tarjan2006cacti,
   title={CACTI 4.0},
-  author={Tarjan, David and others},
+  author={Tarjan, David and Thoziyoor, Shyamkumar and Jouppi, Norman P},
   year={2006},
   institution={Technical Report HPL-2006-86, HP Laboratories Palo Alto}
 }
 
 @inproceedings{agrawal2002side,
   title={The EM side—channel (s)},
-  author={Agrawal, Dakshi and others},
+  author={Agrawal, Dakshi and Archambeault, Bruce and Rao, Josyula R and Rohatgi, Pankaj},
   booktitle={International Workshop on Cryptographic Hardware and Embedded Systems},
+  pages={29--45},
   year={2002},
+  organization={Springer}
 }
 
 
 @inproceedings{kocher1999differential,
   title={Differential power analysis},
-  author={Kocher, Paul and others},
+  author={Kocher, Paul and Jaffe, Joshua and Jun, Benjamin},
   booktitle={Annual International Cryptology Conference},
+  pages={388--397},
   year={1999},
+  organization={Springer}
 }
 
 @inproceedings{genkin2014rsa,
   title={RSA key extraction via low-bandwidth acoustic cryptanalysis},
-  author={Genkin, Daniel and others},
+  author={Genkin, Daniel and Shamir, Adi and Tromer, Eran},
   booktitle={Annual Cryptology Conference},
+  pages={444--461},
   year={2014},
+  organization={Springer}
 }
 
 @article{ferrigno2008aes,
@@ -1135,14 +1183,18 @@
   journal={IET Information Security},
   volume={2},
   number={3},
+  pages={94--98},
   year={2008},
+  publisher={IET}
 }
 
 @inproceedings{carmon2017photonic,
   title={Photonic side channel attacks against RSA},
-  author={Carmon, Elad and others}
+  author={Carmon, Elad and Seifert, Jean-Pierre and Wool, Avishai},
   booktitle={2017 IEEE International Symposium on Hardware Oriented Security and Trust (HOST)},
+  pages={74--78},
   year={2017},
+  organization={IEEE}
 }
 
 @article{gonzalez1996energy,
@@ -1151,6 +1203,7 @@
   journal={IEEE Journal of solid-state circuits},
   volume={31},
   number={9},
+  pages={1277--1284},
   year={1996},
   publisher={IEEE}
 }
@@ -1163,19 +1216,22 @@
 }
 
 @inproceedings{pessl2016drama,
-  title={DRAMA: Exploiting DRAM Addressing for Cross-CPU Attacks},
-  author={Pessl, Peter and others},
-  booktitle={25th USENIX Security Symposium},
+  title={$\{$DRAMA$\}$: Exploiting $\{$DRAM$\}$ Addressing for Cross-CPU Attacks},
+  author={Pessl, Peter and Gruss, Daniel and Maurice, Cl{\'e}mentine and Schwarz, Michael and Mangard, Stefan},
+  booktitle={25th $\{$USENIX$\}$ Security Symposium ($\{$USENIX$\}$ Security 16)},
+  pages={565--581},
   year={2016}
 }
 
 @article{ge2018survey,
   title={A survey of microarchitectural timing attacks and countermeasures on contemporary hardware},
-  author={Ge, Qian and others},
+  author={Ge, Qian and Yarom, Yuval and Cock, David and Heiser, Gernot},
   journal={Journal of Cryptographic Engineering},
   volume={8},
   number={1},
-  year={2018}
+  pages={1--27},
+  year={2018},
+  publisher={Springer}
 }
 
 @article{doychev2015cacheaudit,
@@ -1200,6 +1256,7 @@
   title={Chisel: constructing hardware in a scala embedded language},
   author={Bachrach, Jonathan and Vo, Huy and Richards, Brian and Lee, Yunsup and Waterman, Andrew and Avi{\v{z}}ienis, Rimas and Wawrzynek, John and Asanovi{\'c}, Krste},
   booktitle={DAC Design Automation Conference 2012},
+  pages={1212--1221},
   year={2012},
   organization={IEEE}
 }
@@ -1207,8 +1264,10 @@
 @inproceedings{ros2018superfluous,
   title={The Superfluous Load Queue},
   author={Ros, Alberto and Kaxiras, Stefanos},
-  booktitle={MICRO 51},
+  booktitle={2018 51st Annual IEEE/ACM International Symposium on Microarchitecture (MICRO)},
+  pages={95--107},
   year={2018},
+  organization={IEEE}
 }
 
 @article{kaxiras2018non,
@@ -1217,15 +1276,15 @@
   journal={IEEE Micro},
   volume={38},
   number={3},
+  pages={48--57},
   year={2018},
   publisher={IEEE}
 }
 
-@inproceedings{alves2018investigating,
+@article{alves2018investigating,
   title={Investigating the Use of the Store-Buffer as a Filter-Cache},
   author={Alves, Ricardo and Ros, Alberto and Kaxiras, Stefanos and Black-Schaffer, David},
-  booktitle={ISCA 46},
-  year={2019}
+  year={2018}
 }
 
 @article{tran2017static,
@@ -1234,29 +1293,37 @@
   journal={IEEE Transactions on Computers},
   volume={67},
   number={4},
+  pages={513--527},
   year={2017},
+  publisher={IEEE}
 }
 
 @inproceedings{alipour2017exploring,
   title={Exploring the performance limits of out-of-order commit},
   author={Alipour, Mehdi and Carlson, Trevor E and Kaxiras, Stefanos},
-  booktitle={ACM Computing Frontiers},
+  booktitle={Proceedings of the Computing Frontiers Conference},
+  pages={211--220},
   year={2017},
+  organization={ACM}
 }
 
 @inproceedings{alipour2017taxonomy,
   title={A taxonomy of out-of-order instruction commit},
   author={Alipour, Mehdi and Carlson, Trevor E and Kaxiras, Stefanos},
-  booktitle={IEEE Int'l Symposium on Performance Analysis of Systems and Software (ISPASS)},
+  booktitle={2017 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)},
+  pages={135--136},
   year={2017},
+  organization={IEEE}
 }
 
 
 @inproceedings{tran2017clairvoyance,
   title={Clairvoyance: Look-ahead compile-time scheduling},
   author={Tran, Kim-Anh and Carlson, Trevor E and Koukos, Konstantinos and Sj{\"a}lander, Magnus and Spiliopoulos, Vasileios and Kaxiras, Stefanos and Jimborean, Alexandra},
-  booktitle={Int'l Symp. on Code Generation and Optimization (CGO)},
+  booktitle={2017 IEEE/ACM International Symposium on Code Generation and Optimization (CGO)},
+  pages={171--184},
   year={2017},
+  organization={IEEE}
 }
 
 
@@ -1273,9 +1340,11 @@
 
 @inproceedings{ren2019analysis,
   title={An analysis of performance evolution of Linux's core operations},
-  author={Ren, Xiang Jenny and others},
-  booktitle={SOSP 27},
+  author={Ren, Xiang Jenny and Rodrigues, Kirk and Chen, Luyuan and Vega, Camilo and Stumm, Michael and Yuan, Ding},
+  booktitle={Proceedings of the 27th ACM Symposium on Operating Systems Principles},
+  pages={554--569},
   year={2019},
+  organization={ACM}
 }
 
 @Comment  LocalWords:  yan_invispec:MICRO2018 Mengjia Jiho Skarlatos Zhaoxiang
