@@ -10,6 +10,17 @@
 
 \include{macros}
 
+\newcommand{\squishlist}{
+   \begin{list}{$\bullet$}
+    { \setlength{\itemsep}{0pt}      \setlength{\parsep}{1pt}
+      \setlength{\topsep}{1pt}       \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{1em} \setlength{\labelwidth}{0.8em}
+      \setlength{\labelsep}{0.3em} } }
+
+\newcommand{\squishend}{
+    \end{list}  }
+
+
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
