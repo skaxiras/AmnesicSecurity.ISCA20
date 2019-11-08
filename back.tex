@@ -5,19 +5,23 @@
 \subsection{Delay on Miss and Value Prediction}
 \label{sec:dom-vp}
 %\input{dom-vp} We do not need more sub-levels do we?
-Delay On Miss and VP
+Delay-on-miss and VP. Delay-on-miss preserves some MLP. VP on the other hand destroys MLP.
 
 \paragraph{Why is Delay on Miss so good to begin with}
 Explain that we gain a lot out of intra-cache-line MLP.
-If possible give a breakdown of inra-cache-line MLP vs. iter-cache-line MLP.
+If possible give a breakdown of intra-cache-line MLP vs. inter-cache-line MLP.
 We lose the second and that's what we experience as performance loss.
 
 \paragraph{Why VP cannot offer much on top}
-VP needs to be validated. In order! Non-speculative load-load reordering cannot hep here as we are bound by a new speculation: VP-speculation (VP-Shadow).
+VP needs to be validated. In order! Non-speculative load-load reordering cannot hep here as we are bound by a new speculation: VP-speculation (VP-Shadow). This prevents any MLP for the validation phase. Whatever VP wins in latency (pre-executing load and dependent instructions if correct), looses later in MLP. Result: limited.
 
 \subsection{Data Recomputation}
 \label{sec:recmp}
 %\input{recmp} We do not need more sub-levels do we?
 Proposed as a way to trade in-core computation (cheap in energy) to data movement (expensive in energy) and at the same time perform better when the latency to re-compute is less than the latency to move data throughout the memory hierarchy.
 \paragraph{Why RC can offer beyond VP}
-No need to validate, hence betrer performance, less energy
+Benefits in both latency and MLP: Latency: if recomputation is faster than a miss. MLP: No need to validate, hence does not impose any further restrictions on MLP, hence better performance. Energy: additional benefits in energy if recomputation needs less energy than data movement. Limitation: cannot do too much of it in practice.
+
+
+
+ 
