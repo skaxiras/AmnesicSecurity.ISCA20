@@ -4,6 +4,7 @@ until we figure out what to do with them.
  \end{verbatim}
 
 
+\subsection{Coherence and Consistency}
 On TSO:
 RC seems to work wonders. This is because when we recompute,
 the result is by definition correct --- we do not verify.
@@ -30,4 +31,7 @@ The problem may come from 2 sources:
 The idea could be to "predict at compiler time" no alias, and add ISCA'17 checks and guarantees at runtime.
 
 Right now, I would go for our current solution. In case of alias we do not recompute(we lose coverage), and we do not add speculation there. -- We can speculate in sw and fix it in hw for a follow up paper.
+
+Note: the compiler cannot guarantee DRF for x86 code, as the model is release consistency instead. 
+
 
