@@ -1,0 +1,33 @@
+\begin{verbatim}
+* Stranger Things go here for the moment 
+until we figure out what to do with them.
+ \end{verbatim}
+
+
+On TSO:
+RC seems to work wonders. This is because when we recompute,
+the result is by definition correct --- we do not verify.
+In this respect TSO is not violated by something that cannot change (see
+the ISCA'17 "Non-speculative Load-Load reordering in TSO").
+The situation is clear if the recomputation starts off from constants to
+compute a new value. The new value is immutable by other cores.
+That's what TSO wants.
+
+If the recomputation starts off from values loaded from the L1 (e.g.,
+hits) then we must make sure that these values do not change.
+But that's easy to do: we must ensure lock-downs (ISCA'17) for these
+loads. We can discuss how secure is that, but I believe we can claim
+that we can do RC that respects TSO even in this case. 
+
+When we use a real RC, the compiler detects the posibility of recomputation if all the inputs are constants (or pseudo-constant (write-once)?). In this case TSO is correct. The compiler is giving us the guarantee.
+
+The problem may come from 2 sources:
+
+- 1. The compiler does not know well (may-alias) if an input is constant.
+
+- 2. Parallel applications make it worse the first case.
+
+The idea could be to "predict at compiler time" no alias, and add ISCA'17 checks and guarantees at runtime.
+
+Right now, I would go for our current solution. In case of alias we do not recompute(we lose coverage), and we do not add speculation there. -- We can speculate in sw and fix it in hw for a follow up paper.
+
