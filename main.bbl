@@ -73,6 +73,13 @@ M.~Lipp, M.~Schwarz, D.~Gruss, T.~Prescher, W.~Haas, S.~Mangard, P.~Kocher,
 F.~Liu, Y.~Yarom, Q.~Ge, G.~Heiser, and R.~B. Lee, ``Last-level cache
   side-channel attacks are practical,'' May 2015, pp. 605--622.
 
+\bibitem{aros-isca17}
+\BIBentryALTinterwordspacing
+A.~Ros, T.~E. Carlson, M.~Alipour, and S.~Kaxiras, ``Non-speculative load-load
+  reordering in {TSO},'' 2017, pp. 187--200. [Online]. Available:
+  \url{http://doi.acm.org/10.1145/3079856.3080220}
+\BIBentrySTDinterwordspacing
+
 \bibitem{saileshwar2019cleanupspec}
 G.~Saileshwar and M.~K. Qureshi, ``Cleanupspec: An undo approach to safe
   speculation,'' in \emph{Proceedings of the 52nd Annual IEEE/ACM International

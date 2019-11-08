@@ -44,11 +44,28 @@ The architecture community responded to the threat of speculative side-channel a
 \item{\textbf{Cleanup:}} Perform a speculative change in $\mu$-state but then \emph{undo} if speculation is squashed~\cite{saileshwar2019cleanupspec}.
 \squishend
 
-Unfortunately, all of these were proposed under different thread models and different assumptions about the security mechanisms throughout the system so their contribution to increased security and their cost (in performance, area, energy) are \emph{not directly comparable}. Section \ref{sec:related} provides an extensive discussion. Our own tests show that when some of the techniques (e.g., Delay-on-miss and NDA) are examined under the same conditions (threat models) yield comparable performance results, but significantly more work is required to be able to arrive at meaningful comparisons for the whole of the area.
+Unfortunately, all of these were proposed under different thread models and different assumptions about the security mechanisms throughout the system, so their contribution to increased security and their cost (in performance, area, energy) are \emph{not directly comparable}. Section \ref{sec:related} provides an extensive discussion. Our own tests show that when some of the techniques (e.g., Delay-on-miss and NDA) are examined under the same conditions (threat models) yield comparable performance results, but significantly more work is required to be able to arrive at meaningful comparisons for the whole of the area.
 
-In this work we assume a threat model that permits all types of speculation and focuses on timing side-channels of the complete memory hierarchy (including DRAM). This corresponds to the threat model of Delay-on-miss. Other threat models are beyond the scope of this paper but will be considered in future work. %Threat model: ALL SHADOWS/ALL HIERARCHY. This is the threat model for Delay-on-miss, but no other proposed technique (NDA:  C-SHADOWS/ALL-$\mu$-state, Invisispec: ALL-SHADOWS/ALL-HIERARCHY-MINUS-DRAM, CleanupSpec ALL-SHADOWS/L1)
+In this work we assume a threat model that permits all types of speculation and focuses on timing side-channels of the complete memory hierarchy (including DRAM). This corresponds to the threat model of 
+Delay-on-miss~\cite{sakalis2019efficient}. Other threat models are beyond the scope of this paper {\color{red} but we make an effort to compare where possible}. %Threat model: ALL SHADOWS/ALL HIERARCHY. This is the threat model for Delay-on-miss, but no other proposed technique (NDA:  C-SHADOWS/ALL-$\mu$-state, Invisispec: ALL-SHADOWS/ALL-HIERARCHY-MINUS-DRAM, CleanupSpec ALL-SHADOWS/L1)
 
-Delay-on-miss in its simplicity does a remarkable job of safe 
+\noindent \textbf{It's the MLP ... :} Delay-on-miss is the simple idea of delaying any speculative load until the earliest time when it becomes non-speculative. In all its simplicity, Delay-on-miss, does a remarkable job of preserving a significant part of the performance of the unprotected baseline~\cite{sakalis2019efficient}. This is because, contrary to intuition, it does not destroy all memory-level-parallelism (MLP), as we explain in Section \ref{sec:back}.
+In addition to Delay-on-miss, Sakalis et al. propose to use \emph{value prediction} (\emph{VP}) for the delayed misses in hope of performing useful work (saving latency) for the delayed loads and their dependent instructions. But here is the pitfall of this approach: VP must still be \emph{validated in-order} after the predicted loads become non-speculative. This means that the validation of these loads \emph{cannot have any MLP}.\footnote{This is irrespective of whether we can non-speculatively reorder loads for consistency reasons~\cite{aros-isca17}---See Section \ref{sec:back}.} {\color{red} Our results (based on a detailed simulation model of the proposed techniques) show that VP has very little to offer on top of Delay-on-miss, even after exhausting its theoretical limits in coverage and accuracy.}
+
+\noindent \textbf{Our approach:} It is exactly this problem that we address in this paper. We ask the question: Can we create ``secret'' values, \emph{invisible to an attacker}, for the delayed loads, out of thin air without having to compromise MLP to validate them afterwards? The key realization of this paper is that the answer lies in \emph{value re-computation} (\emph{RC}\footnote{Not to be confused with Release Consistency (also RC)---we will make an effort to clarify what we mean.}) also known as \emph{Amnesiac Computing}~\cite{}.
+
+A summary description of the approach.
+
+\noindent \textbf{Our Contributions:} {\color{red} TO BE REVISED!}
+\squishlist
+\item We identify the fundamental weakness (MLP) concerning a state-of-the-art/recent proposal for value prediction 
+\item We propose to apply an unconventional idea, \emph{value recomputation} (previously proposed as a means to evade the cost of moving data in the memory hierarchy) to solve this problem. We develop a new technique/version/solution/method/... for value recomputation well fitted to the security problem at hand and show the synergy with Delay-on-miss.
+\item We put the new solution in context with related approaches as allowed by the differences in the threat models of each proposal.
+\squishend
+
+\noindent \textbf{A summary of our results:} Blah blah blah.
+
+
 
 
 
