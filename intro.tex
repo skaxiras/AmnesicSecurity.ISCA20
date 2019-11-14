@@ -21,14 +21,14 @@
 
 %The instruction set architecture (ISA) defines the functional aspects of a computer system, in particular the hardware/software interface, without much concern for specifying \emph{non-functional}, \emph{implementation-dependent} aspects (e.g., timing, energy, or other potential signals emanated by the execution of a program on an actual computer system). This provides a tremendous flexibility with respect to the implementation of an ISA. However, exclusion of non-functional aspects at the architectural level, opens a wide array of \emph{side channels where information can leak covertly}. 
 
-Side-channel attacks come in many different forms exploiting all kinds of information stored in ---\emph{what should normally be software-invisible}--- microarchitectural structures. Attacks have been demonstrated using a wide variety of measurements, including electromagnetic emissions~\cite{agrawal2002side}, energy consumption~\cite{kocher1999differential}, and even input/output devices\cite{genkin2014rsa,ferrigno2008aes,carmon2017photonic}. The most common, practical (and first to be discovered~\cite{bernstein2005cache} \textcolor{blue}{Unclear what first refers to as~\cite{agrawal2002side} is older. First of those that are practical?}) type of attack is based on \emph{timing}. More specifically, timing attacks infer secrets by measuring time differences resulting from microarchitectural optimizations.
+%Side-channel attacks come in many different forms exploiting all kinds of information stored in ---\emph{what should normally be software-invisible}--- microarchitectural structures. Attacks have been demonstrated using a wide variety of measurements, including electromagnetic emissions~\cite{agrawal2002side}, energy consumption~\cite{kocher1999differential}, and even input/output devices\cite{genkin2014rsa,ferrigno2008aes,carmon2017photonic}. The most common, practical (and first to be discovered~\cite{bernstein2005cache} \textcolor{blue}{Unclear what first refers to as~\cite{agrawal2002side} is older. First of those that are practical?}) type of attack is based on \emph{timing}. More specifically, timing attacks infer secrets by measuring time differences resulting from microarchitectural optimizations.
 
-The classic example of a timing side channel are processor caches, which store the address and value of recently accessed memory locations. Accesses to cached memory locations are faster, revealing information about which addresses were or were not recently accessed~\cite{yarom_flush+_2014,liu15llc,irazoqui_cross_2016}. Other types of side channels are also possible involving a variety of microarchitectural state (e.g., coherence states, directories, DRAM row buffers) 
-and various attacks have been demonstrated in practice~\cite{}.
+%The classic example of a timing side channel are processor caches, which store the address and value of recently accessed memory locations. Accesses to cached memory locations are faster, revealing information about which addresses were or were not recently accessed~\cite{yarom_flush+_2014,liu15llc,irazoqui_cross_2016}. Other types of side channels are also possible involving a variety of microarchitectural state (e.g., coherence states, directories, DRAM row buffers) 
+%and various attacks have been demonstrated in practice~\cite{}.
 
 With the disclosure of Spectre~\cite{kocher_spectre_2018} and Meltdown~\cite{lipp_meltdown_2018} in early 2018, \emph{speculation}, one of the fundamental techniques for achieving high
 performance, proved to be a significant security hole, leaving the door wide
-open for side-channel attacks to ``see'' protected data~\cite{kocher_spectre_2018,lipp_meltdown_2018}.
+open for side-channel attacks, e.g.,~\cite{bernstein2005cache,yarom_flush+_2014,liu15llc,irazoqui_cross_2016}, to ``see'' protected data~\cite{kocher_spectre_2018,lipp_meltdown_2018}.
 As far as the instruction set architecture (ISA) and the target program are
 concerned, leaking information across a covert timing side-channel (based on microarchitectural state and structures) is not illegal
 because it does not violate the functional, architectural behavior of the program.
@@ -38,37 +38,56 @@ The stealthy nature of a speculative side-channel attack is based on
 \emph{microarchitectural} state being changed by misspeculation even when the \emph{architectural}
 state is not.
 
-\noindent \textbf{First response techniques: hide\&replay, delay, or cleanup?}
-The architecture community responded to the threat of speculative side-channel attacks by proposing a number of techniques to prevent speculative execution from revealing secrets. These techniques fall into one of the following three broad categories:
+\noindent \textbf{First response techniques: hide\&replay, delay, or cleanup?} A number of techniques have been already proposed to hide the effects on \emph{microarchitectural} state during speculation, either by \emph{delaying} such effects~\cite{sakalis2019efficient,weisse2019nda,tts}, or hiding them and making them re-appear for successful speculation (\emph{hide\&replay})~\cite{yan_invisispec:MICRO2018,sakalis2019ghost}) or \emph{cleaning up} the changes in when speculation fails~\cite{saileshwar2019cleanupspec}. Because these techniques were proposed for different threat models, responding to a different set of known or unknown threats, provide different protection for parts of the system that can leak secrets (e.g., caches, DRAM, core), and make different assumptions for what other parts of the system are protected (hence carry different costs) a direct comparison of all of them is, as of yet, not feasible.
+A more detailed discussion appears in \autoref{sec:rel}. 
+In this paper, we focus on delay techniques and for convenience we adopt the threat model of the work of Sakalis et al., \emph{Delay-on-miss}~\cite{sakalis2019ghost}. Potentially, our work can be generalized and applied to other \emph{delay} techniques, e.g., NDA, proposed by Weisse et al.~\cite{weisse2019nda}, but this is out of the scope of this work.
+
+%\noindent \textbf{First response techniques: hide\&replay, delay, or cleanup?}
+%The architecture community responded to the threat of speculative side-channel attacks by proposing a number of techniques to prevent speculative execution, and in particular \emph{transient instructions}, from revealing secrets. These techniques fall into one of the following three broad categories:
+%%
+%\squishlist
+%\item{\textbf{Hide\&Replay:}} During speculation, perform memory accesses in a manner that does not perturb any microarchitectural state ($\mu$-state) in the memory system (except DRAM row buffers which is unavoidable \textcolor{blue}{Doesn't a closed page policy avoid this problem?}); subsequently, perform a replay of the access (when it becomes non-speculative) to affect the correct changes in the $\mu$-state~\cite{yan_invisispec:MICRO2018,sakalis2019ghost}. 
 %
-\squishlist
-\item{\textbf{Hide\&Replay:}} During speculation, perform memory accesses in a manner that does not perturb any microarchitectural state ($\mu$-state) in the memory system (except DRAM row buffers which is unavoidable \textcolor{blue}{Doesn't a closed page policy avoid this problem?}); subsequently, perform a replay of the access (when it becomes non-speculative) to affect the correct changes in the $\mu$-state~\cite{yan_invisispec:MICRO2018,sakalis2019ghost}. 
+%\item{\textbf{Delay:}} Delay speculative changes in $\mu$-state until execution is non-speculative. Sakalis et al. proposed to delay loads that miss in the L1 (\emph{Delay on miss}) until they are non-speculative~\cite{sakalis2019efficient}. This delays any $\mu$-state change in the memory hierarchy. A different form of delay (\emph{NDA}) proposed by Weisse et al., is to prevent speculative data propagation by delaying \emph{dependent instructions} from executing with speculative inputs~\cite{weisse2019nda}.
+%
+%\item{\textbf{Cleanup:}} Perform speculative changes in $\mu$-state but then \emph{undo} if speculation is squashed~\cite{saileshwar2019cleanupspec}.
+%\squishend
+%
+%Unfortunately, all of these were proposed under different threat models and different assumptions about the security mechanisms throughout the system, so their contribution to increased security and their cost (in performance, area, and energy) are \emph{not directly comparable}. \autoref{sec:rel} provides an extensive discussion. Our own tests show that when some of the techniques (e.g., Delay-on-miss and NDA) are examined under the same conditions (threat models) yield comparable performance results, but significantly more work is required to be able to arrive at meaningful comparisons for the whole of the area.
+%
+%In this work we assume a threat model that permits all types of speculation and focuses on timing side-channels of the complete memory hierarchy (including DRAM). This corresponds to the threat model of 
+%Delay-on-miss~\cite{sakalis2019efficient}. Other threat models are beyond the scope of this paper {\color{red} but we make an effort to compare where possible}. %Threat model: ALL SHADOWS/ALL HIERARCHY. This is the threat model for Delay-on-miss, but no other proposed technique (NDA:  C-SHADOWS/ALL-$\mu$-state, Invisispec: ALL-SHADOWS/ALL-HIERARCHY-MINUS-DRAM, CleanupSpec ALL-SHADOWS/L1)
 
-\item{\textbf{Delay:}} Delay speculative changes in $\mu$-state until execution is non-speculative. Sakalis et al. proposed to delay loads that miss in the L1 (\emph{Delay on miss}) until they are non-speculative~\cite{sakalis2019efficient}. This delays any $\mu$-state change in the memory hierarchy. A different form of delay (\emph{NDA}) proposed by Weisse et al., is to prevent speculative data propagation by delaying \emph{dependent instructions} from executing with speculative inputs~\cite{weisse2019nda}.
+\noindent \textbf{What problem are we solving?} Delay-on-miss is the simple idea of delaying any speculative load until the earliest time when it becomes non-speculative. 
+%In its simplicity, Delay-on-miss, preserves a significant part of the performance of the unprotected baseline~\cite{sakalis2019efficient}. 
+%The key to understanding this behavior, is to consider the effects on memory level parallelism (MLP).
+%Delaying loads, intrinsically, does not prevent memory-level-parallelism (MLP), as we explain in Section \ref{sec:back}. What prevents MLP is imposing an order in the loads which would make them speculative if they were performed out of this order. This can either be imposed by the memory model (as in e.g., ~\cite{sakalis2019efficient,sakalis2019ghost,sakalis2019efficient,weisse2019nda}{\color{red} [CHECKME: is NDA affected?]}) or by speculating the value of the load~\cite{sakalis2019efficient}.
+To recover some of the lost performance from delaying critical instructions (loads that miss) Sakalis et al. proposed to use \emph{value prediction} (\emph{VP}) for the delayed misses in hope of performing useful work for the delayed loads and their dependent instructions. In other words, the aim of VP is to increase instruction-level-parallelism (ILP) by executing dependent instructions using a load-value prediction. 
 
-\item{\textbf{Cleanup:}} Perform speculative changes in $\mu$-state but then \emph{undo} if speculation is squashed~\cite{saileshwar2019cleanupspec}.
-\squishend
+The conundrum of this approach is the following: VP, as another form of speculation, forces predicted loads to be validated \emph{in-order} in the memory hierarchy, as each load remains speculative until all older loads have been performed non-speculatively. This means that the validation of these loads \emph{cannot have any MLP}. 
+This is the same problem many of the proposed techniques (e.g., ~\cite{yan_invisispec:MICRO2018,sakalis2019ghost,sakalis2019efficient,weisse2019nda}{\color{red} [CHECKME: is NDA affected?]}) are facing with a consistency model, such as TSO, that requires load order to be preserved. 
+%In a speculative implementation of TSO, each load that is performed out-of-order with respect to older loads, remains speculative until all older loads have been performed. 
+However, VP imposes an order in the predicted loads, even when a consistency model, such as Release Consistency (RC), does not require it, or even when the \emph{implementation} of a consistency model, such as TSO, allows \emph{non-speculative load-load reordering}~\cite{aros-isca17}.
 
-Unfortunately, all of these were proposed under different threat models and different assumptions about the security mechanisms throughout the system, so their contribution to increased security and their cost (in performance, area, and energy) are \emph{not directly comparable}. \autoref{sec:rel} provides an extensive discussion. Our own tests show that when some of the techniques (e.g., Delay-on-miss and NDA) are examined under the same conditions (threat models) yield comparable performance results, but significantly more work is required to be able to arrive at meaningful comparisons for the whole of the area.
+Thus, any possible gains in ILP from VP during speculation, could be compromized by the hinderance of MLP at validation.
+%This is irrespective of whether we can non-speculatively reorder loads for consistency reasons~\cite{aros-isca17}---See Section \ref{sec:back}. 
+{\color{red} Our results (based on a detailed simulation model of the proposed techniques) show that VP---even at its theoretical limits in coverage and accuracy---has little to offer on top of Delay-on-miss.\footnote{We have verified the validity of our results by contacting the authors of~\cite{sakalis2019efficient}}}
 
-In this work we assume a threat model that permits all types of speculation and focuses on timing side-channels of the complete memory hierarchy (including DRAM). This corresponds to the threat model of 
-Delay-on-miss~\cite{sakalis2019efficient}. Other threat models are beyond the scope of this paper {\color{red} but we make an effort to compare where possible}. %Threat model: ALL SHADOWS/ALL HIERARCHY. This is the threat model for Delay-on-miss, but no other proposed technique (NDA:  C-SHADOWS/ALL-$\mu$-state, Invisispec: ALL-SHADOWS/ALL-HIERARCHY-MINUS-DRAM, CleanupSpec ALL-SHADOWS/L1)
-
-\noindent \textbf{It's the MLP ... :} Delay-on-miss is the simple idea of delaying any speculative load until the earliest time when it becomes non-speculative. In all its simplicity, Delay-on-miss, does a remarkable job of preserving a significant part of the performance of the unprotected baseline~\cite{sakalis2019efficient}. This is because, contrary to intuition, it does not destroy all memory-level-parallelism (MLP), as we explain in Section \ref{sec:back}.
-In addition to Delay-on-miss, Sakalis et al. propose to use \emph{value prediction} (\emph{VP}) for the delayed misses in hope of performing useful work (saving latency) for the delayed loads and their dependent instructions. But here is the pitfall of this approach: VP must still be \emph{validated in-order} after the predicted loads become non-speculative. This means that the validation of these loads \emph{cannot have any MLP}.\footnote{This is irrespective of whether we can non-speculatively reorder loads for consistency reasons~\cite{aros-isca17}---See Section \ref{sec:back}.} {\color{red} Our results (based on a detailed simulation model of the proposed techniques) show that VP---even at its theoretical limits in coverage and accuracy---has very little to offer on top of Delay-on-miss.}
-
-\noindent \textbf{Our approach:} It is exactly this problem that we address in this paper. We ask the question: Can we create ``secret'' values, \emph{invisible to an attacker}, for the delayed loads, out of thin air without having to compromise MLP to validate them afterwards? The key realization of this paper is that the answer lies in \emph{value re-computation} (\emph{RC}\footnote{Not to be confused with Release Consistency (also RC)---we will make an effort to clarify what we mean.}) also known as \emph{Amnesiac Computing}~\cite{}.
+\noindent \textbf{A new perspective:} In this paper, we ask the question: Can we create ``secret'' values, \emph{invisible to an attacker}, for the delayed loads, out of thin air, without having to compromise MLP to validate them afterwards? Our key intuition is that the answer lies in \emph{value re-computation} (\emph{RC}
+%\footnote{Not to be confused with Release Consistency (also RC)---we will make an effort to clarify what we mean.}
+{\color{red} [FIXME: I am confusing RC with RC (release consistency with recomputation) all the time. We need to do something about this as both terms appear often]}) also known as \emph{Amnesiac Computing}~\cite{}.
 
 A summary description of the approach.
 
-\noindent \textbf{Our Contributions:} {\color{red} TO BE REVISED!}
+\noindent \textbf{Our Contributions:} {\color{red} [FIXME: TO BE REVISED!]}
 \squishlist
 \item We identify the fundamental weakness (MLP) concerning a state-of-the-art/recent proposal for value prediction 
 \item We propose to apply an unconventional idea, \emph{value recomputation} (previously proposed as a means to evade the cost of moving data in the memory hierarchy) to solve this problem. We develop a new technique/version/solution/method/... for value recomputation well fitted to the security problem at hand and show the synergy with Delay-on-miss.
-\item We put the new solution in context with related approaches as allowed by the differences in the threat models of each proposal.
+\item We evaluate the potential of ReComp 
+%\item We put the new solution in context with related approaches as allowed by the differences in the threat models of each proposal.
 \squishend
 
-\noindent \textbf{A summary of our results:} Blah blah blah.
+\noindent \textbf{A summary of our results:} Blah blah blah. {\color{red} [MAKEME: FIRST proposal for security that actually outperforms the baseline!!!! ---OK... granted, in EDP, but that's something NEW!--- hopefully we can show the numbers for it!]}
 
 
 

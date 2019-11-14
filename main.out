@@ -1,13 +1,14 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
 \BOOKMARK [1][-]{section.2}{Background}{}% 2
 \BOOKMARK [2][-]{subsection.2.1}{Threat Model}{section.2}% 3
-\BOOKMARK [2][-]{subsection.2.2}{Delay on Miss and Value Prediction}{section.2}% 4
-\BOOKMARK [2][-]{subsection.2.3}{Data Recomputation}{section.2}% 5
-\BOOKMARK [1][-]{section.3}{ISER}{}% 6
-\BOOKMARK [1][-]{section.4}{Stranger Things}{}% 7
-\BOOKMARK [2][-]{subsection.4.1}{Coherence and Consistency}{section.4}% 8
-\BOOKMARK [1][-]{section.5}{Evaluation Setup}{}% 9
-\BOOKMARK [1][-]{section.6}{Evaluation}{}% 10
-\BOOKMARK [1][-]{section.7}{Related Work}{}% 11
-\BOOKMARK [1][-]{section.8}{Conclusion}{}% 12
-\BOOKMARK [1][-]{section*.1}{References}{}% 13
+\BOOKMARK [2][-]{subsection.2.2}{Speculation Shadows}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Delay on Miss and Value Prediction}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{Data Recomputation}{section.2}% 6
+\BOOKMARK [1][-]{section.3}{ISER}{}% 7
+\BOOKMARK [1][-]{section.4}{Stranger Things}{}% 8
+\BOOKMARK [2][-]{subsection.4.1}{Coherence and Consistency}{section.4}% 9
+\BOOKMARK [1][-]{section.5}{Evaluation Setup}{}% 10
+\BOOKMARK [1][-]{section.6}{Evaluation}{}% 11
+\BOOKMARK [1][-]{section.7}{Related Work}{}% 12
+\BOOKMARK [1][-]{section.8}{Conclusion}{}% 13
+\BOOKMARK [1][-]{section*.1}{References}{}% 14

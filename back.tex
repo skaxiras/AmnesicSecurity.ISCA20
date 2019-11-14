@@ -1,6 +1,13 @@
 \subsection{Threat Model}
 \label{sec:threat}
 %\input{threat} We do not need more sub-levels do we?
+{ \color{red} [FIXME: Probably discuss after the shadows?] }
+
+\subsection{Speculation Shadows} 
+Sakalis et al. introduced the concept of \textbf{\emph{Speculative Shadows}} to reason about the earliest time an instruction becomes non-speculative and is considered safe to execute regardless of its effects on $\mu$-state~\cite{sakalis2019efficient}.
+Instructions that can cast speculative shadows on younger instructions in the dynamic instruction stream are known as \textbf{speculation primitives}.
+Prior work identified the following types of shadows: \emph{E-Shadows} are cast by any instruction that can cause an \textbf{exception}; 
+\emph{C-Shadows} are cast by \textbf{control} instructions, such as branches and jumps, when either the branch condition or the target address are unknown or have been predicted but not yet verified; \emph{D-Shadows} are cast by potential \textbf{data dependencies} through stores with unresolved addresses (read-after-write dependencies); \emph{M-shadows} are cast by \emph{speculatively executed memory accesses} that speculatively violate the ordering rules of a memory model (e.g., total store order---TSO); and \emph{V-shadows} that are cast by value-predicted loads~\cite{sakalis2019efficient}.
 
 \subsection{Delay on Miss and Value Prediction}
 \label{sec:dom-vp}
