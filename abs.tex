@@ -10,21 +10,21 @@
         Catchy evaluation numbers
 \end{verbatim}
 
-First-response, architectural, approaches to address speculative side-channel attacks aim to hide changes in microarchitectural state while in speculation. 
+Recent architectural approaches to address speculative side-channel attacks aim to hide changes in microarchitectural state while in speculation. 
 
 %\emph{delay} changes until non-speculative, \emph{hide} changes and \emph{replay} when non-speculative, or \emph{cleanup} changes on mispeculation. In this work we focus on work that \emph{delays} changes until non-speculative.
 One approach is to \emph{delay} micro-architectural changes until they are non-speculative. A \emph{Delay-on-miss} technique, simply delays loads that miss in the L1 until they become non-speculative, thus ensuring that transient changes in the memory hierarchy are not possible.
 
-To recover some of the latency, while waiting for the loads to become non-speculative, \emph{Value Prediction} of the delayed-load's value has been proposed.
+To recover some of the latency, while waiting for the loads to become non-speculative, \emph{Value Prediction} (VP) of the delayed-load's value has been proposed.
 
-We observe that introducing a new kind of speculation to hide other speculation, has the unfortunate effect of \emph{serializing} the execution (VP-validation) of the all loads that are value-predicted, \emph{even when such serialization is not imposed by the implementation of a memory model}. \emph{While loads that are value-predicted may contribute a little to ILP, their serialization detracts from MLP.} We show that because of this the contrition of value prediction in the end performance is limited.
+We observe that introducing a new kind of speculation to hide other speculation, has the unfortunate effect of \emph{serializing} the execution (VP-validation) of the all loads that are value-predicted, \emph{even when such serialization is not imposed by the implementation of a memory model}. \emph{While loads that are value-predicted may contribute a little to ILP, their serialization detracts from MLP.} Because of this, the contrition of value prediction in the end performance is fundamentally limited.
 
-Our insight is that we can achieve the goal of value prediction (increasing ILP by early-performing some of loads that miss) without its negative side-effect (serialization of validation and hindering of MLP) if we can \emph{non-speculatively} create load values on demand. 
+Our insight is that we can achieve the same goal as value prediction (increasing ILP by early-performing some of loads that miss) but without incurring its negative side-effect (serialization of validation and hindering of MLP) if we can \emph{non-speculatively} deliver load values on demand. 
 
-The key to this goal is a technique previously proposed to reduce energy-expensive data transfers in the memory hierarchy. \emph{Value Recomputation} trades computation for data transfer which means that if we can safely recompute a value in isolation, we do not expose to a potential adversary any information that we would otherwise by transferring such value via the memory hierarchy.
+We achieve this with \emph{Value Recomputation} which trades computation for data transfer. This technique was previously proposed in an entirely different context: to reduce energy-expensive data transfers in the memory hierarchy. If we can safely, non-speculatively, recompute a value in isolation (without being seen from the outside), we do not expose any information that we would do otherwise, by transferring such value via the memory hierarchy.
 
-We explore the potential of Recomp in relation to a Delay-on-mis and show ... 
+In this paper we demonstrate the potential of Recomp in relation to a Delay-on-miss approach of hinding speculation and show that ... Results Results Results. Further, {\color{red} in contrast to VP where one pays a cost (energy, area) in hope or recovering some of the lost performance, Recomp is not only providing better performance than VP, but at the same time delivers its natural benefit which is an absolute reduction in data transfers in the memory hierarchy, hence an overall reduction in energy. This makes our proposal the first in which a more secure architecture surpasses the baseline in terms of energy-efficiency (EDP).}
 
-{\color{red} In contrast to VP where one pays a cost (energy, area) in hope or recovering some of the lost performance, Recomp is not only providing better performance that VP, but at the same time provides its natural benefit which is an absolute reduction in data transfers in the memory hierarchy, hence a reduction in energy. This is the first proposal for a more secure architecture that surpasses the baseline in energy-efficiency.}
+
 
 
