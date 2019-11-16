@@ -6,7 +6,7 @@ until we figure out what to do with them.
 
 \subsection{Coherence and Consistency}
 On TSO:
-RC seems to work wonders. This is because when we recompute,
+\recomp\ seems to work wonders. This is because when we recompute,
 the result is by definition correct --- we do not verify.
 In this respect TSO is not violated by something that cannot change (see
 the ISCA'17 "Non-speculative Load-Load reordering in TSO").
@@ -18,9 +18,10 @@ If the recomputation starts off from values loaded from the L1 (e.g.,
 hits) then we must make sure that these values do not change.
 But that's easy to do: we must ensure lock-downs (ISCA'17) for these
 loads. We can discuss how secure is that, but I believe we can claim
-that we can do RC that respects TSO even in this case. 
+that we can do \recomp\ that respects TSO even in this case. 
+\redHL{[Actually we never assumed the Slice inputs are in L1, if not const. we get them from specialized buffers (which by contruction wouldn't be visible to the outside world)...]}
 
-When we use a real RC, the compiler detects the posibility of recomputation if all the inputs are constants (or pseudo-constant (write-once)?). In this case TSO is correct. The compiler is giving us the guarantee.
+When we use a real \recomp, the compiler detects the posibility of recomputation if all the inputs are constants (or pseudo-constant (write-once)?). In this case TSO is correct. The compiler is giving us the guarantee.
 
 The problem may come from 2 sources:
 
@@ -30,8 +31,8 @@ The problem may come from 2 sources:
 
 The idea could be to "predict at compiler time" no alias, and add ISCA'17 checks and guarantees at runtime.
 
-Right now, I would go for our current solution. In case of alias we do not recompute(we lose coverage), and we do not add speculation there. -- We can speculate in sw and fix it in hw for a follow up paper.
+Right now, I would go for our current solution. In case of alias we do not recompute(we lose coverage), and we do not add speculation there. -- We can speculate in sw and fix it in hw for a follow up paper. \redHL{[Agreed. We need a full-fledged next  paper to cover the parallel case anyways.]}
 
 Note: the compiler cannot guarantee DRF for x86 code, as the model is release consistency instead. 
-
+\redHL{[I am afraid we'll need to leave this open in this submission]}
 
