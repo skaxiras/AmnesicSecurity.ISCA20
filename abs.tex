@@ -17,7 +17,7 @@ One approach is to \emph{delay} micro-architectural changes until they are non-s
 
 To recover some of the latency, while waiting for the loads to become non-speculative, \emph{Value Prediction} (VP) of the delayed-load's value has been proposed.
 
-We observe that introducing a new kind of speculation to hide other speculation, has the unfortunate effect of \emph{serializing} the execution (VP-validation) of the all loads that are value-predicted, \emph{even when such serialization is not imposed by the implementation of a memory model}. \emph{While loads that are value-predicted may contribute a little to ILP, their serialization detracts from MLP.} Because of this, the contrition of value prediction in the end performance is fundamentally limited.
+We observe that introducing a new kind of speculation to hide other speculation, has the unfortunate effect of \emph{serializing} the execution (VP-validation) of the all loads that are value-predicted, \emph{even when such serialization is not imposed by the implementation of a memory model}. \emph{While loads that are value-predicted may contribute a little to ILP, their serialization detracts from MLP.} Because of this, the contribution of value prediction in the end performance is fundamentally limited.
 
 Our insight is that we can achieve the same goal as value prediction (increasing ILP by early-performing some of loads that miss) but without incurring its negative side-effect (serialization of validation and hindering of MLP) if we can \emph{non-speculatively} deliver load values on demand. 
 
