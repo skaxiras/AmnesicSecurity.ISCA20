@@ -67,15 +67,16 @@ To recover some of the lost performance from delaying critical instructions (loa
 The conundrum of this approach is the following: VP, as another form of speculation, forces predicted loads to be validated \emph{in-order} in the memory hierarchy, as each load remains speculative until all older loads have been performed non-speculatively. This means that the validation of these loads \emph{cannot have any MLP}. 
 This is the same problem many of the proposed techniques (e.g., ~\cite{yan_invisispec:MICRO2018,sakalis2019ghost,sakalis2019efficient,weisse2019nda}{\color{red} [CHECKME: is NDA affected?]}) are facing with a consistency model, such as TSO, that requires load order to be preserved. 
 %In a speculative implementation of TSO, each load that is performed out-of-order with respect to older loads, remains speculative until all older loads have been performed. 
-However, VP imposes an order in the predicted loads, even when a consistency model, such as Release Consistency (RC), does not require it, or even when the \emph{implementation} of a consistency model, such as TSO, allows \emph{non-speculative load-load reordering}~\cite{aros-isca17}.
+However, VP imposes an order in the predicted loads, even when a consistency model, such as Release Consistency (\rc), does not require it, or even when the \emph{implementation} of a consistency model, such as TSO, allows \emph{non-speculative load-load reordering}~\cite{aros-isca17}.
 
 Thus, any possible gains in ILP from VP during speculation, could be compromized by the hinderance of MLP at validation.
 %This is irrespective of whether we can non-speculatively reorder loads for consistency reasons~\cite{aros-isca17}---See Section \ref{sec:back}. 
 {\color{red} Our results (based on a detailed simulation model of the proposed techniques) show that VP---even at its theoretical limits in coverage and accuracy---has little to offer on top of Delay-on-miss.\footnote{We have verified the validity of our results by contacting the authors of~\cite{sakalis2019efficient}}}
 
-\noindent \textbf{A new perspective:} In this paper, we ask the question: Can we create ``secret'' values, \emph{invisible to an attacker}, for the delayed loads, out of thin air, without having to compromise MLP to validate them afterwards? Our key intuition is that the answer lies in \emph{value re-computation} (\emph{RC}
+\noindent \textbf{A new perspective:} In this paper, we ask the question: Can we create ``secret'' values, \emph{invisible to an attacker}, for the delayed loads, out of thin air, without having to compromise MLP to validate them afterwards? Our key intuition is that the answer lies in \emph{value re-computation} (\emph{\recomp})
 %\footnote{Not to be confused with Release Consistency (also RC)---we will make an effort to clarify what we mean.}
-{\color{red} [FIXME: I am confusing RC with RC (release consistency with recomputation) all the time. We need to do something about this as both terms appear often]}) also known as \emph{Amnesiac Computing}~\cite{}.
+%{\color{red} [FIXME: I am confusing RC with RC (release consistency with recomputation) all the time. We need to do something about this as both terms appear often]}) 
+also known as \emph{Amnesiac Computing}~\cite{amnesiac17}.
 
 A summary description of the approach.
 
@@ -83,7 +84,7 @@ A summary description of the approach.
 \squishlist
 \item We identify the fundamental weakness (MLP) concerning a state-of-the-art/recent proposal for value prediction 
 \item We propose to apply an unconventional idea, \emph{value recomputation} (previously proposed as a means to evade the cost of moving data in the memory hierarchy) to solve this problem. We develop a new technique/version/solution/method/... for value recomputation well fitted to the security problem at hand and show the synergy with Delay-on-miss.
-\item We evaluate the potential of ReComp 
+\item We evaluate the potential of \recomp\ 
 %\item We put the new solution in context with related approaches as allowed by the differences in the threat models of each proposal.
 \squishend
 
