@@ -34,6 +34,18 @@ Assume that a delayed load exits all speculative shadows: E-Shadows (no instruct
 
 VP needs to be validated. In order! Non-speculative load-load reordering cannot hep here as we are bound by a new speculation: VP-speculation (VP-Shadow). This prevents any MLP for the validation phase. Whatever VP wins in latency (pre-executing load and dependent instructions if correct), looses later in MLP. Result: limited.
 
+{\color{blue} Magnus notes:
+
+The wast majority of all loads are executed speculatively (80+\% on average as seen in shadowedloads.pdf), which causes the loads to be delayed and take up precious resources as it prevents instructions to commit (this should be the case for NDA, STT, and delay-on-miss).
+The amount of speculation causes each load to be covered by 5 speculative shadows on average (see averagenumber...pdf). This causes the majority of the loads to be executed serially, severely limiting MLP. Furthermore, it's not enough to remove an individual shadow as the load will be covered by another overlapping shadow.
+
+The VP cannot help as it only provides values early, the validation is still delayed until all shadows have been lifted. Thus, precious resources are still occupied until the same point in time as only delaying.
+This can be observed for the case where an oracle VP is used. One might think that a VP that has 100\% coverage and accuracy would perform equally to the recomputation oracle since the load value in both cases is provided immediately. But this is not the case. The vp-100 does not provide any significant improvement compared to the ISCA VP with ~20\% coverage (see nomralizedpc.pdf). For an improvement instant validation (no delay) is needed. VP is basically limited by the same "property" as delay-on-miss.
+
+Recomputation alleviates this problem by removing the need to delay. A recomputed value is "instantly" (RC slice latency) available and can be committed as soon as all the shadows are lifted (in contrast to delay/VP, which requires a load/validation to be performed before commit).
+
+}
+
 \subsection{Data Recomputation}
 \label{sec:recmp}
 %\input{recmp} We do not need more sub-levels do we?
