@@ -21,46 +21,30 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{agrawal2002side}
-D.~Agrawal, B.~Archambeault, J.~R. Rao, and P.~Rohatgi, ``The em side—channel
-  (s),'' in \emph{International Workshop on Cryptographic Hardware and Embedded
-  Systems}.\hskip 1em plus 0.5em minus 0.4em\relax Springer, 2002, pp. 29--45.
+\bibitem{amnesiac17}
+I.~Akturk and U.~R. Karpuzcu, ``{AMNESIAC: Amnesic Automatic Computer - Trading
+  Computation for Communication for Energy Efficiency},'' in \emph{Proceedings
+  of the Architectural Support for Programming Languages and Operating
+  Systems}, 2017.
 
 \bibitem{bernstein2005cache}
-D.~J. Bernstein, ``Cache-timing attacks on aes,'' 2005.
-
-\bibitem{carmon2017photonic}
-E.~Carmon, J.-P. Seifert, and A.~Wool, ``Photonic side channel attacks against
-  rsa,'' in \emph{2017 IEEE International Symposium on Hardware Oriented
-  Security and Trust (HOST)}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE,
-  2017, pp. 74--78.
-
-\bibitem{ferrigno2008aes}
-J.~Ferrigno and M.~Hlav{\'a}{\v{c}}, ``When aes blinks: introducing optical
-  side channel,'' \emph{IET Information Security}, vol.~2, no.~3, pp. 94--98,
-  2008.
-
-\bibitem{genkin2014rsa}
-D.~Genkin, A.~Shamir, and E.~Tromer, ``Rsa key extraction via low-bandwidth
-  acoustic cryptanalysis,'' in \emph{Annual Cryptology Conference}.\hskip 1em
-  plus 0.5em minus 0.4em\relax Springer, 2014, pp. 444--461.
+D.~J. Bernstein, ``Cache-timing attacks on {AES},'' 2005.
 
 \bibitem{irazoqui_cross_2016}
 \BIBentryALTinterwordspacing
-G.~Irazoqui, T.~Eisenbarth, and B.~Sunar, ``Cross processor cache attacks,''
-  2016, pp. 353--364. [Online]. Available:
+G.~Irazoqui, T.~Eisenbarth, and B.~Sunar, ``Cross processor cache attacks,'' in
+  \emph{Proceedings of the {ACM} on Asia Conference on Computer and
+  Communications Security}.\hskip 1em plus 0.5em minus 0.4em\relax New York,
+  NY, USA: ACM, 2016, pp. 353--364. [Online]. Available:
   \url{http://doi.acm.org/10.1145/2897845.2897867}
 \BIBentrySTDinterwordspacing
 
 \bibitem{kocher_spectre_2018}
 P.~Kocher, D.~Genkin, D.~Gruss, W.~Haas, M.~Hamburg, M.~Lipp, S.~Mangard,
   T.~Prescher, M.~Schwarz, and Y.~Yarom, ``Spectre attacks: Exploiting
-  speculative execution,'' May 2019.
-
-\bibitem{kocher1999differential}
-P.~Kocher, J.~Jaffe, and B.~Jun, ``Differential power analysis,'' in
-  \emph{Annual International Cryptology Conference}.\hskip 1em plus 0.5em minus
-  0.4em\relax Springer, 1999, pp. 388--397.
+  speculative execution,'' in \emph{Proceedings of the {IEEE} Symposium on
+  Security and Privacy}.\hskip 1em plus 0.5em minus 0.4em\relax Washington, DC,
+  USA: IEEE Computer Society, May 2019.
 
 \bibitem{lipp_meltdown_2018}
 \BIBentryALTinterwordspacing
@@ -71,49 +55,75 @@ M.~Lipp, M.~Schwarz, D.~Gruss, T.~Prescher, W.~Haas, S.~Mangard, P.~Kocher,
 
 \bibitem{liu15llc}
 F.~Liu, Y.~Yarom, Q.~Ge, G.~Heiser, and R.~B. Lee, ``Last-level cache
-  side-channel attacks are practical,'' May 2015, pp. 605--622.
+  side-channel attacks are practical,'' in \emph{Proceedings of the {IEEE}
+  Symposium on Security and Privacy}.\hskip 1em plus 0.5em minus 0.4em\relax
+  Washington, DC, USA: IEEE Computer Society, May 2015, pp. 605--622.
+
+\bibitem{pessl2016drama}
+P.~Pessl, D.~Gruss, C.~Maurice, M.~Schwarz, and S.~Mangard, ``$\{$DRAMA$\}$:
+  Exploiting $\{$DRAM$\}$ addressing for cross-cpu attacks,'' in
+  \emph{Proceedings of the {USENIX} Security Symposium}, 2016, pp. 565--581.
 
 \bibitem{aros-isca17}
 \BIBentryALTinterwordspacing
 A.~Ros, T.~E. Carlson, M.~Alipour, and S.~Kaxiras, ``Non-speculative load-load
-  reordering in {TSO},'' 2017, pp. 187--200. [Online]. Available:
+  reordering in {TSO},'' in \emph{Proceedings of the International Symposium on
+  Computer Architecture}.\hskip 1em plus 0.5em minus 0.4em\relax New York, NY,
+  USA: ACM, 2017, pp. 187--200. [Online]. Available:
   \url{http://doi.acm.org/10.1145/3079856.3080220}
 \BIBentrySTDinterwordspacing
 
 \bibitem{saileshwar2019cleanupspec}
 G.~Saileshwar and M.~K. Qureshi, ``Cleanupspec: An undo approach to safe
-  speculation,'' in \emph{Proceedings of the 52nd Annual IEEE/ACM International
-  Symposium on Microarchitecture}.\hskip 1em plus 0.5em minus 0.4em\relax ACM,
-  2019, pp. 73--86.
+  speculation,'' in \emph{Proceedings of the {ACM/IEEE} International Symposium
+  on Microarchitecture}.\hskip 1em plus 0.5em minus 0.4em\relax New York, NY,
+  USA: ACM, 2019, pp. 73--86.
 
-\bibitem{sakalis2019ghost}
+\bibitem{sakalis+:CF2019ghost}
 C.~Sakalis, M.~Alipour, A.~Ros, A.~Jimborean, S.~Kaxiras, and M.~Sj{\"a}lander,
   ``Ghost loads: what is the cost of invisible speculation?'' in
-  \emph{Proceedings of the 16th ACM International Conference on Computing
-  Frontiers}.\hskip 1em plus 0.5em minus 0.4em\relax ACM, 2019, pp. 153--163.
+  \emph{Proceedings of the {ACM} International Conference on Computing
+  Frontiers}.\hskip 1em plus 0.5em minus 0.4em\relax New York, NY, USA: ACM,
+  2019, pp. 153--163.
 
-\bibitem{sakalis2019efficient}
+\bibitem{sakalis+:ISCA2019vp}
 C.~Sakalis, S.~Kaxiras, A.~Ros, A.~Jimborean, and M.~Sj{\"a}lander, ``Efficient
   invisible speculative execution through selective delay and value
-  prediction,'' in \emph{Proceedings of the 46th International Symposium on
-  Computer Architecture}.\hskip 1em plus 0.5em minus 0.4em\relax ACM, 2019, pp.
-  723--735.
+  prediction,'' in \emph{Proceedings of the International Symposium on Computer
+  Architecture}.\hskip 1em plus 0.5em minus 0.4em\relax New York, NY, USA: ACM,
+  2019, pp. 723--735.
 
 \bibitem{weisse2019nda}
 O.~Weisse, I.~Neal, K.~Loughlin, T.~F. Wenisch, and B.~Kasikci, ``Nda:
   Preventing speculative execution attacks at their source,'' in
-  \emph{Proceedings of the 52nd Annual IEEE/ACM International Symposium on
-  Microarchitecture}.\hskip 1em plus 0.5em minus 0.4em\relax ACM, 2019, pp.
-  572--586.
+  \emph{Proceedings of the {ACM/IEEE} International Symposium on
+  Microarchitecture}.\hskip 1em plus 0.5em minus 0.4em\relax New York, NY, USA:
+  ACM, 2019, pp. 572--586.
 
 \bibitem{yan_invisispec:MICRO2018}
 M.~Yan, J.~Choi, D.~Skarlatos, A.~Morrison, C.~W. Fletcher, and J.~Torrellas,
   ``{InvisiSpec}: Making speculative execution invisible in the cache
-  hierarchy,'' Oct. 2018, pp. 428--441.
+  hierarchy,'' in \emph{Proceedings of the {ACM/IEEE} International Symposium
+  on Microarchitecture}.\hskip 1em plus 0.5em minus 0.4em\relax Washington, DC,
+  USA: IEEE Computer Society, Oct. 2018, pp. 428--441.
 
 \bibitem{yarom_flush+_2014}
+\BIBentryALTinterwordspacing
 Y.~Yarom and K.~Falkner, ``{FLUSH}+ {RELOAD}: A high resolution, low noise, l3
-  cache side-channel attack.''\hskip 1em plus 0.5em minus 0.4em\relax {USENIX}
-  Association, 2014, pp. 719--732.
+  cache side-channel attack,'' in \emph{Proceedings of the {USENIX} Security
+  Symposium}.\hskip 1em plus 0.5em minus 0.4em\relax {USENIX} Association,
+  2014, pp. 719--732. [Online]. Available:
+  \url{https://www.usenix.org/conference/usenixsecurity14/technical-sessions/presentation/yarom}
+\BIBentrySTDinterwordspacing
+
+\bibitem{yu_speculative:MICRO2019-STT}
+\BIBentryALTinterwordspacing
+J.~Yu, M.~Yan, A.~Khyzha, A.~Morrison, J.~Torrellas, and C.~W. Fletcher,
+  ``Speculative {Taint} {Tracking} ({STT}): {A} {Comprehensive} {Protection}
+  for {Speculatively} {Accessed} {Data},'' in \emph{Proceedings of the
+  {ACM/IEEE} International Symposium on Microarchitecture}.\hskip 1em plus
+  0.5em minus 0.4em\relax New York, NY, USA: ACM, 2019, pp. 954--968. [Online].
+  Available: \url{http://doi.acm.org/10.1145/3352460.3358274}
+\BIBentrySTDinterwordspacing
 
 \end{thebibliography}
