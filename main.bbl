@@ -21,29 +21,8 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{agrawal2002side}
-D.~Agrawal, B.~Archambeault, J.~R. Rao, and P.~Rohatgi, ``The em side—channel
-  (s),'' in \emph{International Workshop on Cryptographic Hardware and Embedded
-  Systems}.\hskip 1em plus 0.5em minus 0.4em\relax Springer, 2002, pp. 29--45.
-
 \bibitem{bernstein2005cache}
-D.~J. Bernstein, ``Cache-timing attacks on aes,'' 2005.
-
-\bibitem{carmon2017photonic}
-E.~Carmon, J.-P. Seifert, and A.~Wool, ``Photonic side channel attacks against
-  rsa,'' in \emph{2017 IEEE International Symposium on Hardware Oriented
-  Security and Trust (HOST)}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE,
-  2017, pp. 74--78.
-
-\bibitem{ferrigno2008aes}
-J.~Ferrigno and M.~Hlav{\'a}{\v{c}}, ``When aes blinks: introducing optical
-  side channel,'' \emph{IET Information Security}, vol.~2, no.~3, pp. 94--98,
-  2008.
-
-\bibitem{genkin2014rsa}
-D.~Genkin, A.~Shamir, and E.~Tromer, ``Rsa key extraction via low-bandwidth
-  acoustic cryptanalysis,'' in \emph{Annual Cryptology Conference}.\hskip 1em
-  plus 0.5em minus 0.4em\relax Springer, 2014, pp. 444--461.
+D.~J. Bernstein, ``Cache-timing attacks on {AES},'' 2005.
 
 \bibitem{irazoqui_cross_2016}
 \BIBentryALTinterwordspacing
@@ -57,11 +36,6 @@ P.~Kocher, D.~Genkin, D.~Gruss, W.~Haas, M.~Hamburg, M.~Lipp, S.~Mangard,
   T.~Prescher, M.~Schwarz, and Y.~Yarom, ``Spectre attacks: Exploiting
   speculative execution,'' May 2019.
 
-\bibitem{kocher1999differential}
-P.~Kocher, J.~Jaffe, and B.~Jun, ``Differential power analysis,'' in
-  \emph{Annual International Cryptology Conference}.\hskip 1em plus 0.5em minus
-  0.4em\relax Springer, 1999, pp. 388--397.
-
 \bibitem{lipp_meltdown_2018}
 \BIBentryALTinterwordspacing
 M.~Lipp, M.~Schwarz, D.~Gruss, T.~Prescher, W.~Haas, S.~Mangard, P.~Kocher,
@@ -72,6 +46,12 @@ M.~Lipp, M.~Schwarz, D.~Gruss, T.~Prescher, W.~Haas, S.~Mangard, P.~Kocher,
 \bibitem{liu15llc}
 F.~Liu, Y.~Yarom, Q.~Ge, G.~Heiser, and R.~B. Lee, ``Last-level cache
   side-channel attacks are practical,'' May 2015, pp. 605--622.
+
+\bibitem{pessl2016drama}
+P.~Pessl, D.~Gruss, C.~Maurice, M.~Schwarz, and S.~Mangard, ``$\{$DRAMA$\}$:
+  Exploiting $\{$DRAM$\}$ addressing for cross-cpu attacks,'' in \emph{25th
+  $\{$USENIX$\}$ Security Symposium ($\{$USENIX$\}$ Security 16)}, 2016, pp.
+  565--581.
 
 \bibitem{aros-isca17}
 \BIBentryALTinterwordspacing

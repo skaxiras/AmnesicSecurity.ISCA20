@@ -5,29 +5,44 @@
 
 \subsection{Speculation Shadows} 
 Sakalis et al. introduced the concept of \textbf{\emph{Speculative Shadows}} to reason about the earliest time an instruction becomes non-speculative and is considered safe to execute regardless of its effects on $\mu$-architectural state~\cite{sakalis2019efficient}.
-Instructions that can cast speculative shadows on younger instructions in the dynamic instruction stream are known as \textbf{speculation primitives}.
-Prior work identified the following types of shadows: \emph{E-Shadows} are cast by any instruction that can cause an \textbf{exception}; 
-\emph{C-Shadows} are cast by \textbf{control} instructions, such as branches and jumps, when either the branch condition or the target address are unknown or have been predicted but not yet verified; \emph{D-Shadows} are cast by potential \textbf{data dependencies} through stores with unresolved addresses (read-after-write dependencies); \emph{M-shadows} are cast by \emph{speculatively executed memory accesses} that speculatively violate the ordering rules of a memory model (e.g., total store order---TSO); and \emph{V-shadows} that are cast by value-predicted loads~\cite{sakalis2019efficient}.
+%Instructions that can cast speculative shadows on younger instructions in the dynamic instruction stream are known as \textbf{speculation primitives}.
+Speculative shadows can be of the following types: \emph{E-Shadows} are cast by any instruction that can cause an \textbf{exception}; 
+\emph{C-Shadows} are cast by \textbf{control instructions}, such as branches and jumps, when either the branch condition or the target address are unknown or have been predicted but not yet verified; \emph{D-Shadows} are cast by potential \textbf{data dependencies} through stores with unresolved addresses (read-after-write dependencies); \emph{M-shadows} are cast by \textbf{speculatively executed memory accesses} that may be caught violating the ordering rules of a memory model (e.g., total store order---TSO) and therefore may need to be squashed; and \emph{V-shadows} that are cast by \textbf{value-predicted loads}~\cite{sakalis2019efficient}.
 
-\subsection{Delay on Miss and Value Prediction}
+\subsection{Delay-on-Miss and Memory Consistency Models}
 \label{sec:dom-vp}
 %\input{dom-vp} We do not need more sub-levels do we?
-Delay-on-miss and VP. Delay-on-miss preserves some MLP. VP on the other hand destroys MLP.
+The goal of Delay-on-miss is to hide speculative changes in the memory hierarchy (including DRAM). 
+To achieve this, Delay-on-miss delays speculative loads that miss in the L1. Loads that hit in the L1 (and their dependent instructions) are allowed to execute speculatively as their effects (i.e., on the L1 replacement state) can be deferred for when the loads are cleared from any speculation shadow. 
+The miss of a delayed load is allowed to be resolved in the memory hierarchy at the earliest point the load becomes non-speculative. An efficient mechanism to track shadows is proposed in~\cite{sakalis2019efficient}. 
 
-\paragraph{Why is Delay on Miss so good to begin with}
-Explain that we gain a lot out of intra-cache-line MLP.
-If possible give a breakdown of intra-cache-line MLP vs. inter-cache-line MLP.
-We lose the second and that's what we experience as performance loss.
+A critical factor that affects the performance of Delay-on-miss (with respect to a non-delaying baseline) is its effect on MLP for the delayed misses. 
+A stalled L1 miss is allowed to proceed (and affect changes in the $\mu$-architectural state) just after the \emph{first} load that caused the miss becomes non-speculative.
+Many times, a single L1 miss satisfies multiple loads.\footnote{This property was exploited since the early high-performance architectures such as the Alpha 21164: each of its MSHRs could satisfy up to four outstanding loads that missed on the same cacheline~\cite{alpha21164}.} 
+In such cases, MLP among loads to the same cacheline is attained effortlessly.
+MLP, however, among loads on \emph{different} cachelines is more involved and depends on restrictions imposed by the memory consistency model (MCM). We will examine TSO and {\rc} as representative MCMs.
 
-\paragraph{Why VP cannot offer much on top}
+Assume that a delayed load exits all speculative shadows: E-Shadows (no instruction before it, or itself, will cause an exception), C-Shadow (all preceding branches have resolved), and D-Shadow (all preceding stores have resolved their addresses). The only shadow that is left is the M-Shadow that is governed by the MCM:
+\squishlist
+\item {\rc}: In {\rc} load$\rightarrow$load order is not enforced. An unperformed load does not cast an M-Shadow on younger loads, therefore there is no restriction on the MLP among delayed loads that are unshadowed.
+\item TSO: In TSO load$\rightarrow$load order \emph{is} enforced and unperformed loads cast M-Shadows on younger loads, preventing them from releasing their L1 misses. However, even in this case there is a way to remove the M-Shadow. The key is non-speculative load-load reordering proposed by Ros et al.~\cite{aros-isca17}. Assuming that a load is unshadowed by any other shadow other than the M-Shadow, the M-Shadow can be removed by making the younger loads non-speculative via the cache protocol~\cite{aros-isca17}. \emph{Under this perspective TSO is no different than {\rc} with regards to Delay-on-miss MLP.}
+\squishend
+
+\subsection{Delay-on-miss and Value Prediction} 
+
+{\color{red} Stefanos: To be completed soon}
+
 VP needs to be validated. In order! Non-speculative load-load reordering cannot hep here as we are bound by a new speculation: VP-speculation (VP-Shadow). This prevents any MLP for the validation phase. Whatever VP wins in latency (pre-executing load and dependent instructions if correct), looses later in MLP. Result: limited.
 
 \subsection{Data Recomputation}
 \label{sec:recmp}
 %\input{recmp} We do not need more sub-levels do we?
-Proposed as a way to trade in-core computation (cheap in energy) to data movement (expensive in energy) and at the same time perform better when the latency to re-compute is less than the latency to move data throughout the memory hierarchy.
+
+{\color{red} To be completed by the Amnesiac team}
+
+{\color{blue} Proposed as a way to trade in-core computation (cheap in energy) to data movement (expensive in energy) and at the same time perform better when the latency to re-compute is less than the latency to move data throughout the memory hierarchy.
 \paragraph{Why RC can offer beyond VP}
-Benefits in both latency and MLP: Latency: if recomputation is faster than a miss. MLP: No need to validate, hence does not impose any further restrictions on MLP, hence better performance. Energy: additional benefits in energy if recomputation needs less energy than data movement. Limitation: cannot do too much of it in practice.
+Benefits in both latency and MLP: Latency: if recomputation is faster than a miss. MLP: No need to validate, hence does not impose any further restrictions on MLP, hence better performance. Energy: additional benefits in energy if recomputation needs less energy than data movement. Limitation: cannot do too much of it in practice. }
 
 
 
