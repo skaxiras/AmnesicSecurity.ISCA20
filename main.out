@@ -4,7 +4,7 @@
 \BOOKMARK [2][-]{subsection.2.2}{Speculation Shadows}{section.2}% 4
 \BOOKMARK [2][-]{subsection.2.3}{Delay-on-Miss and Memory Consistency Models}{section.2}% 5
 \BOOKMARK [2][-]{subsection.2.4}{Delay-on-miss and Value Prediction}{section.2}% 6
-\BOOKMARK [2][-]{subsection.2.5}{Data Recomputation}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.5}{Value Recomputation}{section.2}% 7
 \BOOKMARK [1][-]{section.3}{ISER}{}% 8
 \BOOKMARK [1][-]{section.4}{Stranger Things}{}% 9
 \BOOKMARK [2][-]{subsection.4.1}{Coherence}{section.4}% 10
