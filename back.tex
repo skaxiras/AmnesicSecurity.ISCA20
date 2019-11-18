@@ -34,8 +34,7 @@ Non-speculative load--load reordering delays remote stores which can be construe
 
 \subsection{Delay-on-miss and Value Prediction} 
 
-VP needs to be validated. In order! Non-speculative load-load reordering cannot hep here as we are bound by a new speculation: VP-speculation (VP-Shadow). This prevents any MLP for the validation phase. Whatever VP wins in latency (pre-executing load and dependent instructions if correct), looses later in MLP. Result: limited.
-
+%VP needs to be validated. In order! Non-speculative load-load reordering cannot hep here as we are bound by a new speculation: VP-speculation (VP-Shadow). This prevents any MLP for the validation phase. Whatever VP wins in latency (pre-executing load and dependent instructions if correct), looses later in MLP. Result: limited.
 In Delay-on-miss, the wast majority of all loads are executed speculatively (80+\% on average~\cite{}), which causes a notable fraction of the loads to be delayed. This takes up precious resources (i.e., the instruction queue, reorder buffer, load./store queue) and prevents instructions to commit. Similar issues arise with other ``delay'' approaches such as NDA~\cite{} and STT~\cite{}.
 The amount of speculation results in each load being covered by several speculative shadows (five on average~\cite{}). This forces the majority of the loads to be executed serially, severely limiting MLP. Furthermore, removing any individual shadow (e.g., the M-Shadow) has a limited effect, as the load will be covered by another overlapping shadow.
 
