@@ -8,6 +8,7 @@ until we figure out what to do with them.
 
 %\subsection{Impact on Coherence}
 \subsection{Architectural Support for Slice Coherence}
+\label{sec:coherence}
 %Our {\recomp} approach for Delay-on-miss 
 ISER is based on the premise that we do not have to validate: {\recomp} is not a speculation (it is not a prediction). This is certainly the case for \emph{immutable} values that we can safely recompute instead of fetching from the memory hierarchy. As long as the compiler guarantees via alias analysis that recomputed loads access \emph{immutable} values, the approach is compatible with any consistency model and coherency protocol, simply because neither is needed to ensure correctness.
 
@@ -18,11 +19,12 @@ For mostly-immutable values, we still want to maintain the essential property fo
 
 This obviously implies that we must \emph{track} any possible change of the data that would be accessed by recomputed loads.
 
-For single-threaded applications, {\color{blue} such as the ones we study on in this paper} {\color{red} [CHECKME: why? Is there a good justification for that?] -- CS: It's because we can't run multithreaded applications in Gem5, so I would avoid going into it here}, this implies a mechanism to match the thread's \emph{own} stores to the recomputed loads and invalidate the corresponding {\recomp} functions when such matches are found.\footnote{We assume, for the single-threaded case, that we would not recompute loads that touch I/O space that can be changed by a device without seeing any of our own stores modifying that space.}
+For single-threaded applications, {\color{blue} such as the ones we study on in this paper} {\color{red} [CHECKME: why? Is there a good justification for that?] -- CS: It's because we can't run multithreaded applications in Gem5, so I would avoid going into it here}, this implies a mechanism to match the thread's \emph{own} stores to the recomputed loads and invalidate the corresponding {\recomp} slices when such matches are found.\footnote{We assume, for the single-threaded case, that we would not recompute loads that touch I/O space that can be changed by a device without seeing any of our own stores modifying that space.} 
+{\color{magenta} Stores access the {\recomp} slices target address Bloom filter and upon a match invalidate the whole Hist table.}
 
 For multithreaded-applications, this matching of the recomputed loads should be expanded to include stores from other threads besides the thread's own stores. This requires an additional ``coherence'' mechanism to detect remote writes even when there is no copy of the relevant cacheline in the local cache. While a detailed solution is outside the scope of this paper we sketch here the approach that we follow based on a prior approach that serves a similar purpose (of detecting remote writes in the absence of cached copies) and can be adapted for use in our particular situation. 
 
-Specifically, the \emph{Callback} concept, introduced by Ros and Kaxiras~\cite{aros-isca15} can serve as the substrate on which to build a solution. A callbak simply says ``notify me if someone writes on this address'' and it does not need cached copies that invite invalidations. Callback was introduced for synchronization, as an explicit \emph{request} for a notification in the absence of coherence invalidations (or more broadly absence of sharing). Callback can be generalized to perform a similar role in our situation with regards to detecting changes on what we would otherwise consider immutable values. 
+Specifically, the \emph{Callback} concept, introduced by Ros and Kaxiras~\cite{aros-isca15} can serve as the substrate on which to build a solution. A callbak simply says ``notify me if someone writes on this address'' and it does not need cached copies that invite invalidations. Callback was introduced for synchronization, as an explicit \emph{request} for an invalidation in the absence of coherence invalidations (or more broadly absence of sharing). Callback can be generalized to perform a similar role in our situation with regards to detecting changes on what we would otherwise consider immutable values. 
 
 %Another similar approach would be to re-purpose the signature-based, race-detection hardware that sits at the level of the directory, proposed for an \emph{invalidation-less} coherence protocol by Ros and Kaxiras~\cite{aros-micro16}. Again the purpose would be the same: detect writes to mostly-immutable values that we would otherwise (wrongly) recompute.
 
@@ -31,20 +33,21 @@ To conclude, we argue that {\recomp} can be made coherent by explicitly detectin
 \subsection{Impact on Consistency}
 \label{sec:consistency}
 While the coherence approaches sketched above allow us to \emph{explicitly detect} changes in mostly-immutable values and \emph{invalidate} the corresponding {\recomp} function {\color{red} [FIXME: naming]}, here, we discuss the order that this would need to happen in relation to the consistency model of the baseline architecture.
-We use TSO and {\rc} as our prime examples but our reasoning can be generalized to other consistency models. We liberally use the term \emph{callback notifications} to distinguish from the normal coherence invalidation which may not be available when we have no cached copy of the corresponding data.
+We use TSO and {\rc} as our prime examples but our reasoning can be generalized to other consistency models. We use the term \emph{callback invalidation} to distinguish from the normal coherence invalidation which may not be available when we have no cached copy of the corresponding data.
 
 The question here is, once a change is detected to a value that we are capable of recomputing, when exactly is {\recomp} canceled? 
 
-If {\recomp} occurs well in advance of the callback notification it is safe in any consistency model such as TSO or {\rc}. By ``well in advance'' we mean that the recomputed load is retired from the reorder buffer. In this case, it is as if the corresponding load has seen the \emph{old} value, well in advance of the change in the value. Once the callback notification reaches the core, there will be no further {\recomp} of that load.
-Thus, we only need to clarify what happens when a callback notification and the corresponding {\recomp} occur in a critical window when consistency rules could be violated.
+If {\recomp} occurs well in advance of the callback invalidation it is safe in any consistency model such as TSO or {\rc}. By ``well in advance'' we mean that the recomputed load is retired from the reorder buffer. In this case, it is as if the corresponding load has seen the \emph{old} value, well in advance of the change in the value. Once the callback invalidation reaches the core, there will be no further {\recomp} of that load.
+Thus, we only need to clarify what happens when a callback invalidation and the corresponding {\recomp} occur in a critical window when consistency rules could be violated.
 
-In {\rc}, {\recomp} is safe between memory fences. (RC, allows both loads and stores to be reordered, unless otherwise enforced by memory fences.) Callback notifications received before an acquire memory fence must take hold and cancel {\recomp} before crossing the fence.
+In {\rc}, {\recomp} is safe between memory fences. (RC, allows both loads and stores to be reordered, unless otherwise enforced by memory fences.) Callback invalidations received before an acquire memory fence must take hold and cancel {\recomp} before crossing the fence.
 
 In TSO, load--load reordering is not allowed to be observed. A recomputed load is considered \emph{performed} as we consider it equivalent to accessing the actual data. In a \emph{speculative} implementation of TSO,  a recomputed load would be speculative with respect to an older load that is not performed. In other words, a recomputed load can be  in the M-Shadow of one or more older loads.
 
-A callback notification reaching the core while a recomputed load is still under an M-Shadow (e.g., one or more older loads are still not-performed) should squash the recomputed load (and its dependents) and cancel further {\recomp}. In this sense, the recomputed load is speculative (and is squashed) but not because it was recomputed, tried and failed a validation, but because it was out of order. 
+A callback invalidation reaching the core while a recomputed load is still under an M-Shadow (e.g., one or more older loads are still not-performed) should squash the recomputed load (and its dependents) and cancel further {\recomp}. 
+%In this sense, the recomputed load is speculative (and is squashed) but not because it was recomputed, tried and failed a validation, but because it was out of order. 
 
-Alternatively, the recomputed value ca be irrevocably bound to an M-speculative load using the non-speculative load--load reordering approach proposed by Ros et al.~\cite{aros-isca17}. In this case, the recomputed load cannot be squashed simply because it is out of order with respect to older loads; it becomes non-speculative as long as it can set a \emph{lockdown} on the target address~\cite{aros-isca17} to delay conflicting remote stores until it retires.
+% Alternatively, the recomputed value ca be irrevocably bound to an M-speculative load using the non-speculative load--load reordering approach proposed by Ros et al.~\cite{aros-isca17}. In this case, the recomputed load cannot be squashed simply because it is out of order with respect to older loads; it becomes non-speculative as long as it can set a \emph{lockdown} on the target address~\cite{aros-isca17} to delay conflicting remote stores until it retires.
 
 To conclude, we argue that {\recomp} is compatible with both TSO and RC by observing a correct ordering between callback invalidations and {\recomp}.
 
