@@ -33,7 +33,9 @@ manage space (de)allocation.}
  
  \subsection{Execution Semantics}
  
- \arch\ only resorts to recomputation to regenerate values which otherwise would be read from a speculative load from the memory hierarchy, and only so, if the respective speculative load misses in the L1 cache. Recomputation takes place as long as a slice exists and the input operands to the slice instructions can be made readily available at the anticipated time of recomputation. This execution model has the potential of delivering higher energy efficiency, as imbalanced technology scaling renders loads much more energy hungry and slower than arithmetic/logic instructions (which form slices)~\cite{Horow}. 
+ \arch\ only resorts to recomputation to regenerate values that otherwise would be read from a speculative load from the memory hierarchy, and only so, if the respective speculative load misses in the L1 cache. Recomputation takes place as long as a slice exists and the input operands to the slice instructions can be made readily available at the anticipated time of recomputation. 
+ % HMS: Already discussed in the background
+ % This execution model has the potential of delivering higher energy efficiency, as imbalanced technology scaling renders loads much more energy hungry and slower than arithmetic/logic instructions (which form slices)~\cite{Horow}. 
  %Typically a slice contains \redHL{no more than 10-15 instructions}.
  
 \ignore{
@@ -61,7 +63,7 @@ execution semantics are quite different when it comes to slice formation, trigge
      \item{\em What to recompute (slice formation):} \arch\ does not impose any direct constraint on slice length to preserve energy efficiency, as opposed to Amnesiac, as we are not after minimizing energy or latency per load. As long as a slice exists, and its inputs can be made readily available at the anticipated time of recomputation, \arch\ would consider it for recomputation. The only practical limitation on slice length may stem from storage overhead of $\mu$-architectural buffers in this case. 
      \item {\em When to recompute:} \arch\ swaps speculative loads that miss in L1 for recomputation (i.e., with producer instructions of the respective value along a slice). Amnesiac on the other hand, triggers recomputation (irrespective of whether the load is speculative or not) only if it is more energy-efficient to do so. 
  %    \item{\em How to recompute?} Similar to Amnesiac, we use dedicated buffers to prevent corruption of $\mu$-architectural state. 
-     \item{\em When/how to commit a recomputed value to architectural state:} In Amnesiac, a recomputed value is written into the destination register of the  load before execution resumes from where the corresponding load (which is swapped for recomputing instructions) has left. \arch\ has to keep these values buffered until the speculation is resolved (i.e., all shadows are lifted).  \recomp\ cannot change architectural state under speculation, by definition. {However, just as speculative loads that \emph{hit} in the L1, recomputed loads pass their value (in a physical register) to dependent instructions and advance execution.}  
+     \item{\em When/how to commit a recomputed value to architectural state:} In Amnesiac, recomputation does not differentiate between speculative and non-speculative loads, as opposed to \arch. \recomp\ cannot change architectural state under speculation, by definition. Once speculation gets resolved, the recomputed value has to be  written into the architectural destination register of the load before execution resumes from where the corresponding load (which is swapped for recomputing instructions) has left. \arch\ has to keep the recomputed values buffered (in the physical registerfile) until the speculation is resolved (i.e., all shadows are lifted). {Just as speculative loads that \emph{hit} in the L1, recomputed loads pass their value (in a physical register) to dependent instructions and advance execution.}  
  \end{itemize}
  
 % We will detail design specifics next. 
@@ -87,9 +89,10 @@ This pass builds the slice level by level, where
 the immediate producer of the value to be loaded resides at the root.
 %), and lets the slice grow
 %level by level. 
-As opposed to Amnesiac, in this case the only restriction to slice length can come from slice input or storage requirements. 
+As opposed to Amnesiac, the only restrictions to slice length come from slice inputs and storage requirements. 
 %, as long as the cumulative cost of recomputation along \rsv\
 %being constructed remains below $E_{ld,v}$.     
+Loads and stores cannot be present in any slice by definition.
 If, during the traversal of dependency chains, we encounter other load instructions, we 
 %As the compiler traverses the dependency chains, it may hit
 %load instructions. In the proof-of-concept implementation, the
@@ -97,9 +100,6 @@ If, during the traversal of dependency chains, we encounter other load instructi
 replace them recursively with the respective producer instructions. 
 %recursively.
 This recursive growth can continue until a store to the same address is encountered.
-Loads and stores cannot be present 
-%as intermediate nodes 
-in any slice by definition.
 %In fact, stores can never find place in \rsv, and loads can only, if at all,
 %appear at the leaves to read non-recomputable input operands.
 
@@ -114,8 +114,9 @@ Similar to Amnesiac, to communicate recomputation opportunities to the runtime, 
 %of which with recomputation is likely to be more energy-efficient (according to
 %the probabilistic energy cost comparison explained above) 
 %with a 
-the special control
-flow instruction $\texttt{RCMP}$ which semantically corresponds to an atomic bundle of a conditional branch + load (where no prediction is involved for the ``branch'' portion).
+the special control flow instruction $\texttt{RCMP}$, which semantically corresponds to an atomic bundle of a conditional branch + load (where no prediction is involved for the ``branch'' portion).
+%\textcolor{blue}{Isn't the slices specific for each loaded value, i.e., each address, and not for the load instruction (PC). If it's not PC based then a branch with a fixed offset cannot be used as different slices has to be identified for the same load. Somehow the actual load address would have to be used.
+%--A slice is generated per value, not per load PC, indeed. So each slice is matched to an effective address of the load (yet another reason why the first-order implementation used Pin); RCMP inherits all operands from the load, hence any information to calcultate the effective address. We don't specify how the branch addressing work in here, as well, it is not necessarily PC-relative.}
 %In this manner, the recomputing instance of an
 %instruction is separated from its original, ``computing'' instance.
 %Semantically, $\texttt{RCMP}$ corresponds to the fusion of a conditional branch
@@ -128,7 +129,18 @@ The runtime scheduler resolves the branching condition: If the respective load (
 leaves) of the corresponding slice. Otherwise (i.e., if the load hits in L1 when shadowed or if the load is not shadowed), $\texttt{RCMP}$ is not any different than a classic load.
 All operands of
 the respective load and the starting address of its slice form the operands of $\texttt{RCMP}$. 
-$\texttt{RTN}$ instruction (similar to procedure return in nature) demarcates the end of each slice and returns the control to the instruction following $\texttt{RCMP}$. Before the return takes place, the recomputed value is provided to the consumers of the respective load, in the same way as if the load was actually performed. However, the destination register of the corresponding load only gets updated after the load becomes non-speculative.
+$\texttt{RTN}$ instruction (similar to procedure return in nature) demarcates the end of each slice and returns the control to the instruction following $\texttt{RCMP}$. Before the return takes place, the recomputed value is provided to the consumers of the respective load, in the same way as if the load was actually performed. 
+%
+%\textcolor{blue}{What is meant with a destination register? The actual architectural register? This is only updated at commit. The VR computed value could be handled in the same way as any other transient instruction, i.e., a physical register is allcoated to the load/RCMP by the conventional register renaming and written as soon as the value is available by either an L1 hit, VR computation, or delayed load access. \\
+%-- There is clarification about this later in text, also a footnote. The answer is yes, but we use an alternative path for renaming (we could have used regular renaming as well, which would have increased pressure on physical register file) \\
+%-- Using register renaming for the final result would not require more physical registers than the load to start with. This is orthogonal to the use of the SFile. \\
+%However, since VR temporaries are relatively short lived as they can be freed as soon as the final value has been produced (possibly earlier), using the conventional physical registers might not be too costly but this is not something that we need to discuss in this paper} \\
+%
+%\textcolor{blue}{It should be possible to inject VR slices into the conventional OoO engine if the register renamer would have a "shadow" architectural registers. An architecture with 32 architectural registers would internally have a representation with 64 registers, where the 32 first are used for conventional instructions and the last 32 for any VR instruction that is incerted. The RTN instruction would then remap the final result/register from the upper half to the lower half register. This would allow available ILP to be exploited both within the VR slice as well as other instructions.} \\
+%
+%\textcolor{blue}{There's one problem with this. How would the VR slice be able to access alive registers that is needed? Also, how is the VR slice able to access the Hist buffer? Are VR slices constructed by specialized instructions that can address other resources than conventional instructions. This would require a duplication of many instructions.}
+%
+%However, the destination register of the corresponding load only gets updated after the load becomes non-speculative.
 During runtime we can re-order the leaf instructions in a slice in different ways, as leaf instructions cannot
 depend on each other. 
 
@@ -165,7 +177,7 @@ to a dedicated buffer.
 
 \subsection{($\mu$-)Architecture}
 %\noindent{\bf $\mu$-Architecture:}
-We next detail $\mu$-architectural structures for \arch, as depicted in Fig.~\ref{fig:ctrl}, which serve two main purposes:
+We next detail the $\mu$-architectural structures for \arch, as depicted in Fig.~\ref{fig:ctrl}, which serve two main purposes:
 (1) Keeping $\mu$-architectural state intact during recomputation; (2) Making 
 slice instructions and operands available at the anticipated time of recomputation. 
 %All $\mu$-architectural buffers have  
@@ -184,7 +196,8 @@ ULYA: Ack. This is coming from our previous analysis which we didn't consider Oo
 }
 
 \noindent {\em Scratch-File (SFile)}  practically acts as the physical registerfile during recomputation. 
-Specifically, while recomputation is in progress, all data flows through the SFile. Thereby, \arch\ preserves $\mu$-architectural state during recomputation. No structure beyond SFile is necessary in this case, as no memory access instruction is permitted in a slice.
+Specifically, while recomputation is in progress, all data flows through the SFile. Thereby, \arch\ preserves $\mu$-architectural state during recomputation. No structure beyond SFile is necessary in this case, as no memory access instruction is permitted in a slice. 
+\textcolor{blue}{HMS: How are registers stored in the Hist buffer referenced, i.e., how can an instruction specify if the value is to be read from an architectural register or from a value in the Hist that has been stored by an REC instruction?}
 
 \noindent {\em Rename logic} translates (architectural) register references of slice instructions to SFile entries.
 Semantically, it is equivalent to the rename logic of classic out-of-order processors, with SFile replacing the physical registerfile. 
