@@ -1,32 +1,34 @@
+\ignore{
 \begin{verbatim}
-
-
 Stranger Things go here for the moment 
 until we figure out what to do with them.
+\end{verbatim}
+\redHL{U: Will embed this into the previous section where we talk about practical implementation.}
+}
 
- \end{verbatim}
+%\subsection{Impact on Coherence}
+\subsection{Architectural Support for Slice Coherence}
+%Our {\recomp} approach for Delay-on-miss 
+ISER is based on the premise that we do not have to validate: {\recomp} is not a speculation (it is not a prediction). This is certainly the case for \emph{immutable} values that we can safely recompute instead of fetching from the memory hierarchy. As long as the compiler guarantees via alias analysis that recomputed loads access \emph{immutable} values, the approach is compatible with any consistency model and coherency protocol, simply because neither is needed to ensure correctness.
 
+The issue is what happens if we cannot statically ascertain the immutability of a load's value. In other words, what happens for values that we recompute often as immutable but there is a possibility, however remote, that they can change. We will refer to such values as \emph{mostly-immutable}.\footnote{Naturally, we are not targeting \emph{mutable} values as successful {\recomp} would likely be much \emph{less} prevalent.}
+%Compiler analysis can divide loads in three categories: \emph{no alias}, \emph{always alias}, and \emph{may alias}. Restricting our approach to recomputing 
 
-\subsection{Coherence}
-Our {\recomp} approach for Delay-on-miss is based on the premise that we do not have to validate: {\recomp} is not a speculation (it is not a prediction). This is certainly the case for \emph{immutable} values that we can safely recompute instead of fetching from the memory hierarchy. As long as we can designate (e.g., during compilation) the loads that access \emph{immutable} values, the approach is compatible with any consistency model and coherency protocol, simply because neither is needed to ensure correctness.
-
-The issue is what happens if we cannot statically ascertain the immutability of a value. In other words, what happens for values that we recompute often as immutable but there is a possibility, however remote, that they can change. We will refer to such values as \emph{mostly-immutable}.\footnote{Naturally, we are not targeting \emph{mutable} values as successful {\recomp} would likely be much \emph{less} prevalent.}
-
-For mostly-immutable values, we still want to maintain the essential property for our purposes, that {\recomp} is not a prediction that needs to be validated. Instead, what we want is to be able to make a simple binary decision: to recompute (if the value has not changed) or not (if the value has changed). In other words, we never validate {\recomp} but we expect that a store would \emph{prevent} future recomputation of loads that would access the same address. (See about consistency and ordering details in \autoref{sec:consistency} that follows.)
+For mostly-immutable values, we still want to maintain the essential property for our purposes, that {\recomp} is not a prediction that needs to be validated. Instead, what we want is to be able to make a simple binary decision: to recompute (if the value has not changed) or not (if the value has changed). In other words, we never validate {\recomp} but we expect that a store would \emph{prevent} future recomputation of loads that would access the same address. (See about consistency and ordering details in \autoref{sec:consistency} that follows.) 
 
 This obviously implies that we must \emph{track} any possible change of the data that would be accessed by recomputed loads.
 
-For single-threaded applications, {\color{blue} such as the ones we study on in this paper} {\color{red} [CHECKME: why? Is there a good justification for that?]}, this implies a mechanism to match the thread's \emph{own} stores to the recomputed loads and invalidate the corresponding {\recomp} functions when such matches are found.\footnote{We assume, for the single-threaded case, that we would not recompute loads that touch I/O space that can be changed by a device without seeing any of our own stores modifying that space.}
+For single-threaded applications, {\color{blue} such as the ones we study on in this paper} {\color{red} [CHECKME: why? Is there a good justification for that?] -- CS: It's because we can't run multithreaded applications in Gem5, so I would avoid going into it here}, this implies a mechanism to match the thread's \emph{own} stores to the recomputed loads and invalidate the corresponding {\recomp} functions when such matches are found.\footnote{We assume, for the single-threaded case, that we would not recompute loads that touch I/O space that can be changed by a device without seeing any of our own stores modifying that space.}
 
-For multithreaded-applications, this matching of the recomputed loads should be expanded to include stores from other threads besides the thread's own stores. This requires an additional ``coherence'' mechanism to detect remote writes even when there is no copy of the relevant cacheline in the local cache. While a detailed solution is outside the scope of this paper we can point to approaches that serve a similar purpose (of detecting remote writes in the absence of cached copies) and can be adapted for use in our particular situation. 
+For multithreaded-applications, this matching of the recomputed loads should be expanded to include stores from other threads besides the thread's own stores. This requires an additional ``coherence'' mechanism to detect remote writes even when there is no copy of the relevant cacheline in the local cache. While a detailed solution is outside the scope of this paper we sketch here the approach that we follow based on a prior approach that serves a similar purpose (of detecting remote writes in the absence of cached copies) and can be adapted for use in our particular situation. 
 
-Specifically, the \emph{Callback} concept, introduced by Ros and Kaxiras~\cite{aros-isca15} can serve as the substrate on which to build a solution. A callbak simply says ``notify me if someone writes on this address'' and it does not need cached copies that invite invalidations. Callback was introduced for synchronization, as an explicit \emph{request} for a notification in the absence of coherence invalidations (or more broadly absence of sharing), and we believe it can be generalized to perform a similar role in our situation with regards to detecting changes on what we would otherwise consider immutable values. 
+Specifically, the \emph{Callback} concept, introduced by Ros and Kaxiras~\cite{aros-isca15} can serve as the substrate on which to build a solution. A callbak simply says ``notify me if someone writes on this address'' and it does not need cached copies that invite invalidations. Callback was introduced for synchronization, as an explicit \emph{request} for a notification in the absence of coherence invalidations (or more broadly absence of sharing). Callback can be generalized to perform a similar role in our situation with regards to detecting changes on what we would otherwise consider immutable values. 
 
-Another similar approach would be to re-purpose the signature-based, race-detection hardware that sits at the level of the directory, proposed for an \emph{invalidation-less} coherence protocol by Ros and Kaxiras~\cite{aros-micro16}. Again the purpose would be the same: detect writes to mostly-immutable values that we would otherwise (wrongly) recompute.
+%Another similar approach would be to re-purpose the signature-based, race-detection hardware that sits at the level of the directory, proposed for an \emph{invalidation-less} coherence protocol by Ros and Kaxiras~\cite{aros-micro16}. Again the purpose would be the same: detect writes to mostly-immutable values that we would otherwise (wrongly) recompute.
 
 To conclude, we argue that {\recomp} can be made coherent by explicitly detecting changes to what we would consider immutable values. Techniques for explicitly detecting writes without invalidations have already appeared in prior work and we consider feasible their adaptation to our purposes.
 
-\subsection{Consistency}
+\subsection{Impact on Consistency}
 \label{sec:consistency}
 While the coherence approaches sketched above allow us to \emph{explicitly detect} changes in mostly-immutable values and \emph{invalidate} the corresponding {\recomp} function {\color{red} [FIXME: naming]}, here, we discuss the order that this would need to happen in relation to the consistency model of the baseline architecture.
 We use TSO and {\rc} as our prime examples but our reasoning can be generalized to other consistency models. We liberally use the term \emph{callback notifications} to distinguish from the normal coherence invalidation which may not be available when we have no cached copy of the corresponding data.
@@ -77,3 +79,4 @@ To conclude, we argue that {\recomp} is compatible with both TSO and RC by obser
 %
 %Note: the compiler cannot guarantee DRF for x86 code, as the model is release consistency instead. 
 %}
+

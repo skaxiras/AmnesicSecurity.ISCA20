@@ -8,6 +8,8 @@
 \usepackage{fancyhdr}
 \usepackage[hyphens]{url}
 \usepackage{hyperref}
+\usepackage{subfig}
+\usepackage[normalem]{ulem}
 % Rename subsection to section
 \renewcommand{\sectionautorefname}{Section}
 \renewcommand{\subsectionautorefname}{Section}
@@ -48,8 +50,10 @@
 \pagenumbering{arabic}
 
 %%%%%%%%%%%---SETME-----%%%%%%%%%%%%%
-\title{\arch: Invisible Speculative Execution Through Value Recomputation} 
-\author{Me Myself and I}
+\title{\Large \bf \arch: Invisible Speculative Execution Through Value Recomputation
+\vspace{-1.3cm}
+}
+%\author{Me Myself and I}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
@@ -71,13 +75,13 @@
 \label{sec:back}
 \input{back}
 
-\section{\arch}
+\section{\arch\ Basics}
 \label{sec:arch}
 \input{arch}
 
-\section{Stranger Things} % Remove Before Flight: if this is not an autonomous section distribute its contents appropriately 
-\label{sec:stranger-things}
-\input{stranger}
+%\section{Stranger Things} % Remove Before Flight: if this is not an autonomous section distribute its contents appropriately 
+%\label{sec:stranger-things}
+%\input{stranger}
 
 \section{Evaluation Setup}
 \label{sec:setup}

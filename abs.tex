@@ -1,4 +1,27 @@
-\begin{verbatim}
+Recent architectural approaches that address speculative side-channel attacks aim to prevent software from exposing any microarchitectural state-changes done under speculation. 
+The \emph{Delay-on-Miss} technique is one such approach, which
+simply delays loads that miss in the L1 cache until they become non-speculative, resulting in no transient changes in the memory hierarchy.
+However, this costs in performance, prompting the use of Value Prediction (VP) to regain some of the delay.
+
+In this paper, we show that the problem cannot be solved by simply introducing a new kind of speculation (value prediction). %
+Value-predicted loads have to be validated, which cannot be commenced until the load becomes non-speculative. %
+Thus, value-predicted loads occupy the same amount of precious resources, e.g., ROB entries, as the Delay-on-Miss technique. %
+The end result is that VP only yields marginal benefits over the baseline delay technique without VP. %
+
+Our insight is that we can achieve the same goal as VP (increasing performance by providing the value of loads that miss) without incurring its negative side-effect (delaying the release of precious resources) if we can \emph{non-speculatively} deliver load values on demand.
+We achieve this with \emph{Value Recomputation}, which trades computation for data transfer. 
+This technique was previously proposed in an entirely different context: to reduce energy-expensive data transfers in the memory hierarchy. 
+If we can safely, non-speculatively, recompute a value in isolation (without being seen from the outside), we do not expose any information that we would do otherwise, by transferring such value via the memory hierarchy.
+In this paper, we demonstrate the potential of recomputation in relation to the Delay-on-Miss approach of hiding speculation and show that we can achieve the same level of security at \redHL{XXX\%} of the performance and \redHL{YYY\%} of the energy cost.
+
+
+%... Results Results Results. 
+% Further, in contrast to VP where one pays a cost (energy, area) in hope of recovering some of the lost performance, recomputation is not only providing better performance than VP, but at the same time delivers its natural benefit which is an absolute reduction in data transfers in the memory hierarchy, hence an overall reduction in energy. This makes our proposal the first in which a more secure architecture has the potential to surpass the baseline in terms of energy-efficiency (EDP).}
+%}{\color{blue} In the AMNESIAC paper, loads are never sent out to the memory system. In our work, we still need to access the L1, to determine if it is a miss or not.}[ULYA: Commented as this is not true; we did experiment with loads that miss in L1 or L2...]
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ignore{
     Brief problem statement: 
         Spectre, Meltdown, ++?
     Brief summary of recent arch. solutions: 
@@ -8,33 +31,5 @@
         Crisp description of high-level idea
         Pros, cons wrt related work
         Catchy evaluation numbers
-\end{verbatim}
-
-Recent architectural approaches to address speculative side-channel attacks aim to prevent software from detecting any changes %hide changes 
-in the microarchitectural state while in speculation. 
-%
-%\emph{delay} changes until non-speculative, \emph{hide} changes and \emph{replay} when non-speculative, or \emph{cleanup} changes on mispeculation. In this work we focus on work that \emph{delays} changes until non-speculative.
-One approach is to \emph{delay} micro-architectural changes until they are non-speculative. A \emph{Delay-on-miss} technique, simply delays loads that miss in the L1 until they become non-speculative, thus ensuring that transient changes in the memory hierarchy are not possible.
-%
-%To recover some of the latency, while waiting for the loads to become non-speculative, \emph{Value Prediction} (VP) of the delayed-load's value has been proposed.
-However, this costs in performance and such techniques could not be improved unless a way is found to regain some of the delay. To this end, \emph{Value Prediction} (VP) of the delayed-load's value has been proposed as a solution.
-
-%\textcolor{blue}{Too specific, sounds like fixing one particular problem, i.e., delay on miss and VP, instead of tackling the larger problem.}
-In this paper, we show that the problem cannot be solved by simply introducing
-%We observe that introducing 
-a new kind of speculation (value prediction). 
-Value predicted loads also have to be validated.
-Waiting for the validation of these loads, results in similar occupancy of precious resources (hence similar stalls) as without the value prediction. Furthermore, validation serializes the execution of loads  \emph{even when such serialization is not imposed by the memory model}. The end result is that VP only yields marginal benefits over a baseline delay technique without VP.
-
-%This has the unfortunate effect of \emph{serializing} validation of this speculation by seriof all loads that are value-predicted, \emph{even when such serialization is not imposed by the implementation of a memory model}. \emph{While loads that are value-predicted may contribute a little to ILP, their serialization detracts from MLP.} Because of this, the contribution of value prediction in the end performance is fundamentally limited.
-
-Our insight is that we can achieve the same goal as value prediction (increasing ILP by early-performing some of the loads that miss) but without incurring its negative side-effect (serialization of validation and hindering of MLP) if we can \emph{non-speculatively} deliver load values on demand. 
-
-We achieve this with \emph{Value Recomputation}, which trades computation for data transfer. This technique was previously proposed in an entirely different context: to reduce energy-expensive data transfers in the memory hierarchy. If we can safely, non-speculatively, recompute a value in isolation (without being seen from the outside), we do not expose any information that we would do otherwise, by transferring such value via the memory hierarchy.
-
-In this paper we demonstrate the potential of recomputation in relation to a Delay-on-miss approach of hiding speculation and show that ... Results Results Results. Further, {\color{red} in contrast to VP where one pays a cost (energy, area) in hope of recovering some of the lost performance, recomputation is not only providing better performance than VP, but at the same time delivers its natural benefit which is an absolute reduction in data transfers in the memory hierarchy, hence an overall reduction in energy. This makes our proposal the first in which a more secure architecture surpasses the baseline in terms of energy-efficiency (EDP).
-}{\color{blue} In the AMNESIAC paper, loads are never sent out to the memory system. In our work, we still need to access the L1, to determine if it is a miss or not.}
-
-
-
-
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
