@@ -9,7 +9,7 @@ With the disclosure of Spectre~\cite{kocher_spectre_2018} and Meltdown~\cite{lip
 performance, proved to be a significant security hole, leaving the door wide
 open for side-channel attacks~\cite{bernstein2005cache,yarom_flush+_2014,liu15llc,irazoqui_cross_2016} to ``see'' protected data~\cite{kocher_spectre_2018,lipp_meltdown_2018}.
 As far as the instruction set architecture (ISA) and the target program are
-concerned, leaking information across a covert timing side-channel (based on microarchitectural state and structures) is not illegal
+concerned, leaking information across a covert timing side-channel based on microarchitectural ($\mu$-architectural) state and structures is not illegal
 because it does not violate the functional behavior of the program.
 But \emph{speculative} side-channel attacks reveal secret information during \emph{misspeculations}, 
 i.e., discarded execution that is not a part of the normal execution of a program.
@@ -18,16 +18,16 @@ The stealthy nature of a speculative side-channel attack is based on
 state is not.
 
 \noindent \textbf{First response techniques: delay, hide\&replay, or cleanup?}
-A number of techniques have already been proposed to prevent \emph{microarchitectural} state to leak information during speculation, either by %
-\emph{delaying} such effects~\cite{sakalis+:ISCA2019vp,weisse2019nda,yu_speculative:MICRO2019-STT}, %
+A number of techniques have already been proposed to prevent \emph{microarchitectural} state from leaking information during speculation, either by %
+\emph{delaying} such effects~\cite{sakalis+:ISCA2019vp,weisse2019nda,yu_speculative:MICRO2019-STT, fustos+:DAC2019spectreguard}, %
 \emph{hiding} them and making them re-appear for successful speculation (\emph{hide\&replay})~\cite{yan_invisispec:MICRO2018,sakalis+:CF2019ghost} or %
 \emph{cleaning up} the changes when speculation fails~\cite{saileshwar2019cleanupspec}. %
-Because these techniques were proposed for different threat models (i.e.,  responding to a different set of known or unknown threats), provide different protection for parts of the system that can leak secrets (e.g., caches, DRAM, core), and make different assumptions for what other parts of the system are protected (hence carry different costs) a direct comparison of all of them is, as of yet, not feasible.
+Because these techniques were proposed for different threat models (i.e.,  responding to a different set of known or unknown threats), provide different protection for parts of the system that can leak secrets (e.g., caches, DRAM, core), and make different assumptions for what other parts of the system are protected (hence carry different costs), a direct comparison of all of them is, as of yet, not feasible.
 \ignore{
 A more detailed discussion appears in \autoref{sec:rel}. 
 {\color{blue}CS: I wonder if we really want to go into this so early in the intro? It feels like we are side-tracking a bit}
 }
-In this paper, without loss of generality, we focus on delay techniques and for convenience we adopt the threat model of the work of Sakalis et al., \emph{Delay-on-Miss}~\cite{sakalis+:CF2019ghost}. 
+In this paper, without loss of generality, we focus on delay techniques and for convenience we adopt the threat model of the work of Sakalis et al., referred to as \emph{Delay-on-Miss  (DoM)}~\cite{sakalis+:ISCA2019vp}. 
 \ignore{
 Potentially, our work can be generalized and applied to other \emph{delay} techniques, e.g., NDA, proposed by Weisse et al.~\cite{weisse2019nda}, but this is out of the scope of this work. {\color{blue} CS: How can RC be applied to NDA? They delay everything, RC'ing is not an option, as it can cause detectable contention, which NDA protects against.}
 }
@@ -51,9 +51,9 @@ Potentially, our work can be generalized and applied to other \emph{delay} techn
 %In its simplicity, Delay-on-Miss, preserves a significant part of the performance of the unprotected baseline~\cite{sakalis+:ISCA2019vp}. 
 %The key to understanding this behavior, is to consider the effects on memory level parallelism (MLP).
 %Delaying loads, intrinsically, does not prevent memory-level-parallelism (MLP), as we explain in Section \ref{sec:back}. What prevents MLP is imposing an order in the loads which would make them speculative if they were performed out of this order. This can either be imposed by the memory model (as in e.g., ~\cite{sakalis+:ISCA2019vp,sakalis+:CF2019ghost,weisse2019nda}{\color{red} [CHECKME: is NDA affected?]}) or by speculating the value of the load~\cite{sakalis+:ISCA2019vp}.
-To recover some of the lost performance from delaying critical instructions (loads that miss) Sakalis et al. proposed to use \emph{value prediction} (\emph{VP}) for the delayed misses in hope of performing useful work for the delayed loads and their dependent instructions. In other words, the aim of VP is to increase instruction-level-parallelism (ILP) by executing dependent instructions using a load-value prediction. 
+To recover some of the lost performance from delaying critical instructions (loads that miss) Sakalis et al. proposed to use \emph{value prediction} (\emph{VP}) for the delayed misses in hope of performing useful work for the delayed loads and their dependent instructions. In other words, the aim of VP is to increase instruction-level-parallelism (ILP) by executing dependent instructions using load-value prediction. 
 
-The conundrum of this approach is the following: VP, as another form of speculation, forces predicted loads to be validated \emph{in-order} in the memory hierarchy, as each load remains speculative until all older loads have been performed non-speculatively. This means that the validation of these loads \emph{cannot have any MLP}. 
+The conundrum of this approach is the following: VP, as another form of speculation, forces predicted loads to be validated \emph{in-order} in the memory hierarchy, as each load remains speculative until all older loads have been performed non-speculatively. This means that the validation of these loads \emph{cannot have any memory-level-parallelism (MLP)}. 
 %
 \ignore{
 \sout{This is the same problem many of the proposed techniques (e.g., ~\cite{yan_invisispec:MICRO2018,sakalis+:CF2019ghost,sakalis+:ISCA2019vp,weisse2019nda}}{\color{red} [CHECKME: is NDA affected?]}{\color{blue} -- CS: NDA prevents ILP/MLP by delaying instructions, it does not have validations, nor does it have anything to do with TSO. NDA does not have M-Shadows nor does it interact with coherence at all.}) \sout{are facing with a consistency model, such as TSO, that requires load order to be preserved.
@@ -65,31 +65,38 @@ Thus, any possible gains in ILP from VP during speculation, could be compromised
 %This is irrespective of whether we can non-speculatively reorder loads for consistency reasons~\cite{aros-isca17}---See Section \ref{sec:back}. 
 {
 %\color{red} 
-Our results (based on a detailed simulation model of the proposed techniques) show that VP---even at its theoretical limits in coverage and accuracy---has little to offer on top of Delay-on-Miss.\footnote{We have 
+Our results (based on a detailed simulation model of the proposed techniques) show that VP---even with perfect coverage and accuracy---has little to offer on top of Delay-on-Miss.\footnote{We have 
 %verified the validity of 
 validated our results by contacting the authors of~\cite{sakalis+:ISCA2019vp}.}}
 
-\noindent \textbf{A new perspective:} In this paper, we ask the question: Can we create ``secret'' values, \emph{invisible to an attacker}, for the delayed loads, out of thin air, without having to compromise MLP to validate them afterwards? Our key intuition is that the answer lies in \emph{value re-computation} (\emph{\recomp})
+\noindent \textbf{A new perspective:} In this paper, we ask the question: Can we create ``secret'' values, \emph{invisible to an attacker}, for the delayed loads, without having to compromise MLP to validate them afterwards? Our key intuition is that the answer lies in \emph{value re-computation} (\emph{\recomp})
 %\footnote{Not to be confused with Release Consistency (also RC)---we will make an effort to clarify what we mean.}
 %{\color{red} [FIXME: I am confusing RC with RC (release consistency with recomputation) all the time. We need to do something about this as both terms appear often]}) 
 also known as \emph{Amnesiac Computing}~\cite{amnesiac17}.
-
 %A summary description of the approach.
-The idea is recomputing a value---that otherwise would be loaded from the memory hierarchy---upon an L1 miss, i.e., before it hits the memory hierarchy to get serviced. This requires keeping track of a backward slice of producer instructions on a per (load) value basis, along with the necessary input operands to perform recomputation. By construction, slices do not contain any branch or memory references (be it a store or a load). Recomputation does not come for free, however, as shown by  I. Akturk and U. R. Karpuzcu~\cite{amnesiac17} (and as we will detail in Sect.~\ref{sec:back}). %the required $\mu$-architectural support is minimal. 
-Most importantly, recomputation is not speculative, hence prevents nested speculation (and negative side effects thereof) by construction.
+The idea is that recomputing a value on an L1 miss --- a value that otherwise would have been loaded from the memory hierarchy --- can replace the need to access the memory hierarchy.
+This requires having a backward slice of producer instructions on a per (load) value basis, along with the necessary input operands to perform recomputation. By construction, slices do not contain any branch or memory references (be it a store or a load). 
+Most importantly, recomputation is also not speculative by construction, hence prevents nested speculation (and negative side effects thereof).
 %, as opposed to the alternative, value prediction. 
+%Recomputation does not come for free, however, as shown by  Akturk and Karpuzcu~\cite{amnesiac17} (and as we will detail in Sect.~\ref{sec:back}). %the required $\mu$-architectural support is minimal. 
 
-\noindent \textbf{Our Contributions:} {\color{red} [FIXME: TO BE REVISED!]}
+\noindent \textbf{Our Contributions:} 
+%{\color{red} [FIXME: TO BE REVISED!]}
 \squishlist
-\item We identify the fundamental weakness (MLP) concerning a recent, state-of-the-art proposal for value prediction. 
+\item We identify the fundamental weakness concerning a recent, state-of-the-art proposal for value prediction. 
 \item We propose to apply an unconventional idea, \emph{value recomputation} (previously proposed as a means to evade the cost of moving data in the memory hierarchy) to solve this problem. We devise a $\mu$-architectural framework for security-aware value recomputation, well fitted to the 
 %develop a new technique/version/solution/method/... for value recomputation well fitted to the security problem 
 threat model at hand and show the synergy with Delay-on-Miss.
-\item We evaluate the potential of \recomp\ in eliminating speculative meta-data, which makes classic processors vulnerable to numerous threats, including but not limited to what we know so far.  
+\item We evaluate the potential of \emph{value recomputation} in eliminating speculative metadata, which makes classic processors vulnerable to numerous threats, including but not limited to what is known so far.  
 %\item We put the new solution in context with related approaches as allowed by the differences in the threat models of each proposal.
 \squishend
 
-\noindent \textbf{A summary of our results:} This is the first $\mu$-architectural proposal for security that has the potential of outperforming the (non-secure) baseline in terms of performance and energy-efficiency. In this paper we provide a quantitative discussion on how to unlock this potential. Practically, we cover any (known or yet to come) threat posed by speculative loads. 
+%{\color{red}
+%STEFANOS: This talks about the oracle ? Should we rephrase ?
+
+\noindent \textbf{A summary of our results:} This is the first $\mu$-architectural proposal %for security 
+that has the potential of outperforming the (unsecured) baseline in terms of performance and energy-efficiency, reducing the performance overhead of Delay-on-Miss by $42\%$. In this paper, we provide a quantitative discussion on how to unlock this potential. Practically, we cover any (known or yet to come) threats posed by speculative memory reads.
+%}
 %
 %{\color{red} [MAKEME: FIRST proposal for security that actually outperforms the baseline!!!! ---OK... granted, in EDP, but that's something NEW!--- hopefully we can show the numbers for it!]}{\color{blue}CS: I don't have the new energy numbers yet, but we will probably not outperform the baseline, in EDP or otherwise.}
 

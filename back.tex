@@ -2,7 +2,7 @@
 Sakalis et al. introduced the concept of \textbf{\emph{Speculative Shadows}} to reason about the earliest time an instruction becomes non-speculative and is considered safe to execute regardless of its effects on $\mu$-architectural state~\cite{sakalis+:CF2019ghost,sakalis+:ISCA2019vp}.
 %Instructions that can cast speculative shadows on younger instructions in the dynamic instruction stream are known as \textbf{speculation primitives}.
 Speculative shadows can be of the following types: \emph{E-Shadows} are cast by any instruction that can cause an \textbf{exception}; 
-\emph{C-Shadows} are cast by \textbf{control instructions}, such as branches and jumps, when either the branch condition or the target address are unknown or have been predicted but not yet verified; \emph{D-Shadows} are cast by potential \textbf{data dependencies} through stores with unresolved addresses (read-after-write dependencies); \emph{M-shadows} are cast by \textbf{speculatively executed memory accesses} that may be caught violating the ordering rules of a memory model (e.g., total store order---TSO) and therefore may need to be squashed; and \emph{VP-shadows} are cast by \textbf{value-predicted loads}~\cite{sakalis+:ISCA2019vp}. To be more specific, shadows demarcate regions of speculative instructions. So far, attacks have been demonstrated under the E-~\cite{}, C-~\cite{}, and D-Shadows~\cite{} only, but we cannot exclude future attacks under the rest.
+\emph{C-Shadows} are cast by \textbf{control instructions}, such as branches and jumps, when either the branch condition or the target address are unknown or have been predicted but not yet verified; \emph{D-Shadows} are cast by potential \textbf{data dependencies} through stores with unresolved addresses (read-after-write dependencies); \emph{M-shadows} are cast by \textbf{speculatively executed memory accesses} that may be caught violating the ordering rules of a memory model (e.g., total store order---TSO) and therefore may need to be squashed; and \emph{VP-shadows} are cast by \textbf{value-predicted loads}~\cite{sakalis+:ISCA2019vp}. To be more specific, shadows demarcate regions of speculative instructions. So far, attacks have been demonstrated under the E-~\cite{lipp_meltdown_2018}, C-~\cite{kocher_spectre_2018}, and D-Shadows~\cite{CVE-2018-3693} only, but we cannot exclude future attacks using the rest.
 
 \subsection{Threat Model}
 \label{sec:threat}
@@ -11,25 +11,25 @@ Speculative shadows can be of the following types: \emph{E-Shadows} are cast by 
 
 We target speculative side- or covert-channel attacks that utilize the memory hierarchy (caches, directories, and the main memory) as their side-channel. Non-speculative cache side-channel attacks, as well as attacks that use other side-channels (such as port contention) are outside the scope of this work.
 We make no assumptions as to where the attacker is located in relation to the victim (on the core) or if they share the same virtual memory address space or not.
-As a matter of fact the attacker and the victim can be the same process, as in the Spectre v1 attack~\cite{}.
+As a matter of fact the attacker and the victim can be the same process, as in the Spectre v1 attack~\cite{kocher_spectre_2018}.
 We assume that the attacker can execute arbitrary code or otherwise redirect the execution of running code arbitrarily.
 How the attacker manages to execute or redirect such code is beyond the scope of this work. Instead of focusing on preventing the attacker from accessing data illegally, we focus on preventing the transmission of such data through a side- or covert-channel.
 
-In this work we use the concept of speculative shadows to determine when a load is safe or not. Speculative shadows determine the earliest point at which an instruction is guaranteed to be committed and retired successfully. Other works, such as InvisiSpec~\cite{yan_invisispec:MICRO2018} and NDA~\cite{weisse2019nda}, make different assumptions based on the threat model. For example, InvisiSpec provides two different versions, one based on the initial Spectre attacks where only the equivalent of C-Shadows are considered as part of the threat model, and one based on protecting against all possible future attacks, utilizing all the shadows. Similarly, NDA provides different solutions if only C-Shadows are considered (strict/permissive data propagation), if D-Shadows should also be considered (load restriction), or if all shadows should be considered (load restriction). In this work we assume that all shadows have the potential of being abused, but we do provide some limited results where select shadows have been disregarded, for comparison.
+In this work, we use the concept of speculative shadows to determine when a load is safe or not. Speculative shadows determine the earliest point at which an instruction is guaranteed to be committed and retired successfully. Other works, such as InvisiSpec~\cite{yan_invisispec:MICRO2018} and NDA~\cite{weisse2019nda}, make different assumptions based on the threat model. For example, InvisiSpec provides two different versions, one based on the initial Spectre attacks where only the equivalent of C-Shadows are considered as part of the threat model, and one based on protecting against all possible future attacks, utilizing all the shadows. Similarly, NDA provides different solutions if only C-Shadows are considered (strict/permissive data propagation), if D-Shadows should also be considered (bypass restriction), or if all shadows should be considered (load restriction). In this work we assume that all shadows have the potential of being abused, as we cannot reasonably argue that any of them are not exploitable.
 
 {\em To summarize, 
 %similar to previous proposals, 
-we cover any known or yet-to-be-discovered threat posed by a speculative load. We assume that all system components operate correctly.}
+we cover any known or yet-to-be-discovered side-channel posed by a speculative memory read. We assume that all system components operate correctly.}
 %-- including but not limited to Spectre (and alike)}. 
 
-\subsection{Delay-on-Miss and Memory Consistency Models}
+\subsection{Delay-on-Miss}
 \label{sec:dom-vp}
 %\input{dom-vp} We do not need more sub-levels do we?
 The goal of Delay-on-Miss is to hide speculative changes in the memory hierarchy (including main memory). 
 To achieve this, Delay-on-Miss delays speculative loads that miss in the L1 cache. Loads that hit in the L1 (and their dependent instructions) are allowed to execute speculatively as their effects (i.e., on the L1 replacement state) can be deferred for when the loads are cleared from any speculation shadow. 
-The miss of a delayed load is allowed to be resolved in the memory hierarchy at the earliest point the load becomes non-speculative. An efficient mechanism to track shadows is proposed in~\cite{sakalis+:ISCA2019vp}. 
+The miss of a delayed load is allowed to be resolved in the memory hierarchy at the earliest point the load becomes non-speculative. An efficient mechanism to track shadows is proposed by Sakalis et al.~\cite{sakalis+:ISCA2019vp}. 
 
-In Delay-on-Miss, the wast majority of all loads are executed speculatively (80+\% on average~\cite{sakalis+:ISCA2019vp}), which causes a notable fraction of the loads to be delayed. This takes up precious resources (i.e., the instruction queue, reorder buffer, load/store queue) and eventually stalls instructions from committing. 
+In Delay-on-Miss, the wast majority of all loads are executed speculatively (80+\% on average~\cite{sakalis+:ISCA2019vp}), which causes a notable fraction of the loads to be delayed. This takes up precious resources (i.e., entries in the instruction queue, the reorder buffer, and the load/store queue) and eventually stalls instructions from committing. 
 %Similar issues arise with other ``delay'' approaches such as NDA~\cite{weisse2019nda} and STT~\cite{yu_speculative:MICRO2019-STT}.
 The significant amount of speculation that is performed, results in each load being covered by several speculative shadows (five on average according to our simulations). This forces the majority of the loads to be executed serially, severely limiting MLP. Furthermore, removing any individual shadow (e.g., the M-Shadow) has a limited effect, as the load will be covered by another overlapping shadow.
 
@@ -60,14 +60,14 @@ Assume that a delayed load exits all speculative shadows: E-Shadows (no instruct
 
 \subsection{Delay-on-Miss and Value Prediction} 
 
-The concept of using value prediction with Delay-on-Miss is to speed up the delayed loads (and their dependent instructions) and regain some of the lost performance. Unfortunately in our implementation VP---no mater how good we can make it (even under 100\% coverage and accuracy)---gives only a limited benefit on top of Delay-on-Miss. VP clearly cannot regain the lost performance. This is because of the following reason.
+The concept behind using value prediction (VP) with Delay-on-Miss is to speed up the delayed loads (and their dependent instructions) and regain some of the lost performance. Unfortunately, in our implementation, VP---no mater how good we make it (even under 100\% coverage and accuracy)---gives only a limited benefit on top of Delay-on-Miss. VP clearly cannot regain the lost performance becuase of the following reasons:
 
 %VP needs to be validated. In order! Non-speculative load-load reordering cannot hep here as we are bound by a new speculation: VP-speculation (VP-Shadow). This prevents any MLP for the validation phase. Whatever VP wins in latency (pre-executing load and dependent instructions if correct), looses later in MLP. Result: limited.
 
-VP cannot help much as it simply provides values early. The validation is still delayed until all shadows have been lifted. Thus, precious resources are still occupied until the same point in time as simply delaying the load.
+VP cannot help much as it simply provides values early; however, the validation is still delayed until all shadows have been lifted. Thus, precious core resources are still occupied until the same point in time as simply delaying the load.
 The only perceptible difference is a faster commit of pre-executed dependent instructions if the validation of a value-predicted load proves to be correct.
 
-Furthermore, VP introduces a new speculative shadow, which is referred to as the \emph{VP-Shadow}. This new shadow is only lifted off from younger loads when the validation of the VP is complete. Thus, not only does VP occupy precious resources in the same manner as the Delay-on-Miss, but it further prevents younger loads from validating in parallel. 
+Furthermore, VP introduces a new speculative shadow, which is referred to as the \emph{VP-Shadow}. This new shadow is only lifted from younger loads when the validation of the VP is complete. Thus, not only does VP occupy precious resources in the same manner as the Delay-on-Miss, but it further prevents younger loads from validating in parallel, limiting the MLP. 
 %The astute reader will note that this is the same as the M-Shadow an unperformed load casts on younger loads. Therefore a V-Shadow should not matter in the cases where we do have M-Shadows as the two shadows would completely overlap. As we argued above, we can eliminate the M-Shadow (even in MCMs that enforce load$\rightarrow$load ordering) which leaves the \emph{V-Shadow} as a liability that detracts from MLP and performance.
 %When VP coverage is fairly low, e.g., below 20\% as in~\cite{}, this effect is not pronounced, compared to the effect of removing the M-Shadow for all loads.
 
@@ -75,28 +75,21 @@ Furthermore, VP introduces a new speculative shadow, which is referred to as the
 \subsection{Value Recomputation}
 \label{sec:recmp}
 
-Due to imbalances in technology scaling,  the energy consumption (and latency) of
-data transfer can easily exceed the energy consumption
-(and latency) of value recomputation~\cite{ Horow}.
-Value recomputation (\recomp)~\cite{amnesiac17,taxonomy18}  is proposed as a way to trade off in-core computation (typically fast and cheap in energy) for data movement (typically slow and expensive in energy).
-%, and at the same time perform better when the latency to recompute is less than the latency to move data throughout the memory hierarchy.
+Due to imbalances in technology scaling,  the energy usage (and latency) of data transfers in the memory hierarchy can easily exceed the energy usage (and latency) of value recomputation~\cite{Horow}.
+Value recomputation (\recomp) is proposed as a way to trade off data movement in the memory hierarchy for in-core computation to save energy~\cite{amnesiac17,taxonomy18}.
+%
+The basic idea is to swap slow and energy-hungry loads for recomputation of the respective data values.  
+This is achieved by identifying a slice of producer instructions of the respective data values and executing them when the value is needed.
+Each such slice forms a backward slice of execution, and strictly contains only arithmetic and logic instructions. 
+% No branch, load, or store can find place in slices. 
+% Slices typically form short sequences (in the order of a few tens) of instructions. 
+% The overhead of \recomp\ increases with slice length. 
+% Therefore, \recomp\ cannot deliver any energy or latency benefit if this overhead exceeds the overhead of performing the actual load (which evolves depending on the level in the memory hierarchy to service the load).
+%\recomp{} can deliver an energy and latency improvement if the cost of computing the slice (often consisting of a few tens of instructions) is less than the cost of performing the load (which depends on the cache level at which the data resides).
 
-The basic idea is swapping 
-slow and energy-hungry loads for recomputation of the respective data values.  
-This is achieved by keeping track of a chain of producer instructions of the respective data values. 
-Each such chain forms a backward slice of execution, and strictly contains only arithmetic and logic instructions. 
-No branch, load, or store can find place in slices. 
-Slices typically form short sequences (in the order of a few tens) of
-instructions. 
-The overhead of \recomp\ increases with slice length. 
-Therefore, \recomp\ cannot deliver any energy or latency benefit if this overhead exceeds the
-overhead of performing the actual load (which evolves depending on the level in the memory hierarchy to service the load).
-
-As depicted in Fig.~\ref{fig:rt}, each slice represents an upside-down tree, where nodes correspond to producer instructions to be (re)executed. Data flows from the leaves to the root during recomputation. Nodes at level 1 are immediate producers of
-the (input operands of the) root, nodes at level 2 are 
-producers of nodes at level 3, and so on and so fort. At the leaves reside terminal instructions, which do
-not have any producers (e.g., instructions with constants as input operands).
-
+As depicted in Figure~\ref{fig:rt}, each slice represents a data-dependency graph, where nodes correspond to producer instructions to be (re)executed. Data flows from the parent nodes to their children. The root represents the producer of the store whose value will be recomputed when its corresponding load is encountered, i.e., a load accessing the same memory location.
+Nodes at level 1 are immediate producers of the (input operands of the) root, nodes at level 2 are producers of nodes at level 1, and so on and so fort. 
+The parents which do not have any producers are terminal instructions whose input operands must be available at the time of recomputation. 
 \ignore{
 Slices cannot grow indefinitely due to size limitations of  $\mu$-architectural buffers.
 The overhead of recomputation includes the cost of retrieving
@@ -115,69 +108,17 @@ instructions for which
 only function, if the input operands of leaf instructions are available at their
 anticipated time of (re)execution.
 }
+If these input operands are read-only values to be loaded from memory (such as program inputs) or register values that will be overwritten then buffering of these values are need to enable recomputation of the load~\cite{amnesiac17}. See \autoref{sec:slice_formation} and \autoref{sec:iser-architecture} for more information regarding slice formation and the required architectural support.
+%Buffering such inputs can help keeping the copy before being overwritten, and reducing the energy cost of their retrieval; however, no dedicated buffering is necessary, on the other hand, if slice inputs correspond to immediate\footnote{Immediate values are the constants encoded in the instruction itself, as in I-type instructions}  or live register values. 
 
-Input operands of a slice must be available when it is time to recompute. 
-There is no guarantee that recomputation can regenerate all input operands of slice instructions (particularly for the instructions residing at the very top of the dependency chain).  
-This may be the case if input operands
-are read-only values such as program
-inputs to be loaded from memory, or register values which were lost (already overwritten) at the time of
-recomputation. 
 \ignore{
-We will refer to such input operands as {\em non-recomputable}
-inputs. 
-For \recomp\ to work, such slice inputs
-should not only be available at the anticipated time of recomputation, but also
-be retrievable in an energy-efficient manner.
-%
-Recomputation cannot eliminate any memory access to retrieve the
-non-recomputable inputs of slice leaves.  
+At the same time, for correctly resuming the execution, the recomputation should not alter the architectural state (specifically, the register file).  
+One way to achieve this is to checkpoint the register file before recomputation starts (and restore it back when recomputation finishes).
+A more efficient approach is to deploy a scratchpad (similar to the physical register file in nature but much smaller) and to 
+use the scratchpad as the equivalent of the physical register file during recomputation, while keeping the architectural register file intact. In this case the register references of slice
+instructions need to be renamed to scratchpad entries, and the mechanism is not any different in principle than classical register renaming. 
 }
-If such inputs do not
-reside in close physical proximity to the processor, the energy cost of their
-retrieval may easily exceed the energy cost of memory accesses, rendering recomputation useless.    
-Buffering can help in this case. No dedicated buffering is necessary, on the other hand, if slice inputs
-correspond to constants or live register values. 
-\ignore{
-Since the lifetime of each slice input
-is restricted with the scope of a slice,
-a small buffer suffices to keep the input operands.
-}
-
-At the same time,
-for correct execution,  
- the architectural state (specifically, the registerfile) has to remain
-intact
-during recomputation.  
-One way to achieve this is to
-checkpoint the registerfile before recomputation starts (and restore it back when recomputation finishes).
-%, however, this approach incurs an overhead that may
-%easily offset the benefit of recomputation. 
-A more efficient approach is
-to deploy a scratchpad (similar to the physical registerfile in nature but much smaller) and to 
-use the scratchpad as the equivalent of the physical registerfile during recomputation, while keeping the architectural registerfile intact. In this case the register references of slice
-instructions need to be renamed to scratchpad entries, and the mechanism is not any different in principle than classical renaming. 
-
-%{\color{red} To be completed by the Amnesiac team}
 
 {\noindent \bf Premise:}
-\recomp\ has the potential to render faster (and less energy-hungry) execution, as depending on the slice structure, recomputation can easily be faster (and less energy-hungry) than servicing a miss in the memory hierarchy. At the same time, there is no negative impact on the MLP, since as opposed to VP, \recomp\ is not speculative by itself, hence does not require any costly validation through unnecessary memory access serialization. This, as well, leads to better performance. A recomputed value is non-speculative and can be committed as soon as all the shadows are lifted ---this is in stark contrast to Delay-on-Miss/VP, which require a load/validation to be performed before commit.
-
-\ignore{
-{\color{blue} 
-\paragraph{Why RC can offer beyond VP}
-Benefits in both latency and MLP: Latency: if recomputation is faster than a miss. MLP: No need to validate, hence does not impose any further restrictions on MLP, hence better performance. Energy: additional benefits in energy if recomputation needs less energy than data movement. Limitation: cannot do too much of it in practice. }
-%
-{\color{red} Magnus notes:
-This can be observed for the case where an \emph{oracle} VP is used. One might think that a VP that has 100\% coverage and accuracy would perform equally to the recomputation oracle since the load value in both cases is provided immediately. But this is not the case. The vp-100 does not provide any significant improvement compared to the ISCA VP with ~20\% coverage (see nomralizedpc.pdf). For an improvement instant validation (no delay) is needed. VP is basically limited by the same "property" as delay-on-miss.
-%
-Recomputation alleviates this problem by removing the need to delay. A recomputed value is non-speculative and can be committed as soon as all the shadows are lifted (in contrast to delay/VP, which requires a load/validation to be performed before commit).
-}
-}
-
-
-
-
-
-
-
- 
+\recomp\ has the potential to render a more energy efficient (and faster) execution than servicing a miss in the memory hierarchy. At the same time, there is no need for MLP, since as opposed to VP, \emph{\recomp{} is not speculative} by itself and does not require any costly validation. 
+A recomputed load can be committed as soon as all the shadows are lifted---this is in stark contrast to Delay-on-Miss/VP, which require a load/validation to be performed before commit.

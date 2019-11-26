@@ -1,3 +1,4 @@
+\ignore{
 \begin{verbatim}
     Summary
         Problem, solution, evaluation
@@ -6,3 +7,12 @@
         Limitations
         New vulnerabilities? 
 \end{verbatim}
+}
+\emph{Delay} techniques aim to hide the effects of transient execution by simply delaying instructions until they become non-speculative. Whether delaying loads that miss in the L1, as Delay-on-miss does, or delaying the propagation of speculative data to dependent instructions, as NDA and STT do, delay techniques extract a heavy toll in performance, in direct relation to the set of speculation shadows they protect. Delay techniques would be at an impasse with respect to improvement if we could not regain some of this lost performance in some other way. To this end, value prediction, invisible from the outside, was initially proposed as a solution.
+
+In this work, we show that value prediction is not the right abstraction for recovering lost performance in Delay-on-miss. This is not because of coverage or accuracy but because value prediction is just another form of speculation that needs to be validated. Validation limits the potential benefits to the point where even an oracle VP (100\% coverage and accuracy) does not do any better than a practical VP. In our evaluation we found that, no matter how good, VP is limited to just one percentage point improvement over Delay-on-miss.
+
+Instead, we propose another, \emph{non-speculative}, abstraction to regain performance for delay techniques, and in particular for Delay-on-miss. We propose to use recomputation that yields correct values---not predictions---as the key to overcome Delay-on-miss performance limitations. We describe the architecture, we evaluate it using a practical approach to generate recomputation slices albeit with modest coverage, and we exceed the performance of Oracle VP ($90\%$ vs $93\%$) with lower energy usage. Finally, we discuss the potential for increasing the coverage of recomputation with future architectural support. Because, as we show, oracle recomputation easily exceeds even the performance of the unmodified (unsecured) baseline, this direction provides tangible motivation for researching techniques for a future secure processor. % that can exceed the performance of the baseline.
+
+
+

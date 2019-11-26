@@ -1,3 +1,4 @@
+\ignore{
 \begin{verbatim}
     * Benchmarks 
         * Justification for non-parallel?
@@ -8,6 +9,7 @@
             * Model for potential ISA extensions
         * Energy model
 \end{verbatim}
+}
 
 \begin{table}
   \centering
@@ -32,10 +34,69 @@
   \end{tabular}
 \end{table}
 
-We use the Pin tool developed by Akturk and Karpuzcu~\cite{} for AMNESIAC to generate the slices for the applications.
-We then feed the generated slices to a Gem5 simulator where the shadows, Delay-on-Miss, and VP have been implemented as described in the Delay-on-Miss work by Sakalis et al~\cite{}. In Gem5, we first fast-forward through the first one billion instructions of the application and then simulate in detail for another billion. We also use McPAT~\cite{} with CACTI~\cite{}, as well as the dynamic DRAM energy provided by Gem5, to calculate the energy usage of the system. The configuration parameters can be seen in~\autoref{table:sim-params}.
-We evaluate our proposal of combining Delay-on-Miss with \recomp~  and compare with the a baseline Delay-on-Miss version (no VP or \recomp) as well as a Delay-on-Miss with VP. Finally, we also present what would happen if ideal, Oracle VP or \recomp~ were used. Both Oracles can predict 100\% of the shadowed L1 misses, the difference is that the VP Oracle still needs to send out validations. For the RC Oracle, we assume that each slice consists of ten integer operations, five floating point operations, and takes ten cycles to be computed. Given the average latency we have observed(\autoref{fig:rc-latency}), these numbers are not unrealistic.
-We evaluate all these different versions using the SPEC2006 benchmark suite~\cite{}, with the reference inputs.
+We use a Pin-based tool~\cite{pin} to identify and annotate the recomputation slices. For practical reasons, we limit the maximum slice size during construction to 100 instructions.
+The annotated slices, together with the original binary, are fed to a Gem5~\cite{binkert_gem5:CANEWS2011} simulator where the shadows, Delay-on-Miss, and VP have been implemented as described in the Delay-on-Miss work by Sakalis et al.~\cite{sakalis+:ISCA2019vp}. 
+In Gem5, we begin with fast-forwarding through the first one billion instructions of the application and then simulate in detail for another billion. 
+We use McPAT~\cite{li_mcpat:MICRO2009} with CACTI~\cite{li_CACTI:ICCAD2011}, as well as the dynamic DRAM energy provided by Gem5, to calculate the energy breakdown of the system. 
+The configuration used for simulations are shown in~\autoref{table:sim-params}.
+We evaluate the following versions:
 
+\begin{LaTeXdescription}
+
+    \item[Baseline:] An unsecured out-of-order CPU.
+
+    \item[DoM:] Delay-on-Miss without any value prediction or recomputation. This can be considered as the \emph{secure} baseline.
+    
+    \item[VP:] DoM with the added VTAGE value predictor. 
+    
+    \item[VRC:] DoM with the added value recomputation. This is the solution we are proposing. This does not include callbacks, only immutable values are recomputed.
+    
+    \item[VRC (2 cycles):] Same as the VRC version but we have \emph{artificially} limited the latency of every slice to at most 2 cycles. We have also limited the number of instructions needed for the recomputation accordingly.
+    
+    \item[Oracle VP:] Same as the VP version but with an oracle predictor capable of predicting correctly $100\%$ of all speculative L1 misses. Even though the predictor is perfect, its results are still being validated once the loads have been unshadowed.
+    
+    \item[Oracle {\recomp}:] Same as the VRC version but with an oracle recomputation mechanism capable of recomputing $100\%$ of all speculative L1 misses in 2 cycles. Note that this is the Oracle is regards to the {\recomp} coverage, not in performance. We will discuss the implications of recomputing all speculative L1 misses in the evaluation, \autoref{sec:eval}.
+
+\end{LaTeXdescription}
+
+For the sake of brevity, the last three version are only shown in the performance (IPC) results and are excluded from the rest of the figures.
+We evaluate all these different versions using the SPEC2006 benchmark suite~\cite{spec:cpu06}, with the reference inputs, as in previous work~\cite{sakalis+:ISCA2019vp}.
+For one of the benchmarks, \texttt{GemsFDTD}, none of the techniques we tried produced any improvement. \texttt{GemsFDTD} is a floating point benchmark that is dominated by overlapping C-Shadows.
+%This strongly suggests that its C-Shadows depend on load misses. CS: This is actually not true, the shadows in GemsFDTD are not particularly long.
+It achieves only about 20\% of the baseline performance with DoM (also corroborated by Sakalis et al.~\cite{sakalis+:ISCA2019vp}).
+In our work, we were unable to achieve any improvement with either VP\footnote{We cross-checked the results of \emph{our} implementation of~\cite{sakalis+:ISCA2019vp} with the authors of the original work.} 
+or {\recomp} because of near-zero coverage. 
+In contrast, it shows an impressive $3.5\times$ ($350\%$) improvement with an oracle {\recomp} ($100\%$ coverage)---however, this may be impractical to attain. 
+Energy results follow the same pattern, either showing high energy consumption ($3\times$ of the baseline) with all the techniques we tried or $56\%$ lower than the baseline with the {\recomp} oracle.
+We surmise that \texttt{GemsFDTD} performs badly, in general, under any ``delay'' technique (including NDA~\cite{weisse2019nda} and STT~\cite{yu_speculative:MICRO2019-STT}). 
+Unfortunately, it is not included in these works to allow for comparisons. 
+Because \texttt{GemsFDTD} represents such a special case for delay techniques we believe that further work is required to specifically address its shortcomings. 
+For these reasons, we point out its idiosyncrasy here, instead of discussing it with the rest of the benchmarks.
+
+\ignore{
+{\color{red} Size/Overhead of buffers for ISER: 
+
+To Chris/Zamshed: how many speculative loads we can have at any given time? We can use the max num. of on-the-fly speculative loads as the number of max slices that we may keep their inputs at any given time. 
+
+Avg. Num. of terminal instructions (inst. that have no producers)? This can give us an estimate on the number of Hist Entries needed (avg. num of terminal ins x avg. num of operands x num of slices on-the-fly)}
+
+\textcolor{blue}{The number of RCMP in the ROB (i.e., speculative loads with potential for VRC) is not the limit for how many slices that might need data in the Hist buffer. This is determined by the maximum number or REC instructions between any given REC and its corresponding RCMP instruction.}
+
+{\color{red}
+Avg. Slice length X Num of Slices we keep concurrently would give the size of IBuff
+
+Energy/Time Overhead of these structures? How did we model them? As SRAM? Any numbers e.g., ns,cycles,nJ?
+}
+}
+
+
+% U: Commenting this, as it is embedded to the front-end
+\ignore{
 \noindent \textbf{RSlice Profiling:} 
-The RSlice \textcolor{red}{(Check defintion of RSlice in text)} profiling entails running AMNESIAC within the region of interest, defined by skipping and running the PinTool for specific number of instructions, generating all the possible RSlices within that region of interest. Having a RSlice corresponding to a load instruction means this load instruction can be replaced by the sequence of instructions defined by the corresponding RSlice. A RSlice generation begins with a load instruction at the root of the slice. Tracking the producer-consumer relationship between the corresponding load value (as the consumer), the producer instruction(s) responsible for generating that load value are added to the corresponding RSlice. The input operands for the producer instructions are generated by replacing the corresponding operands with the respective producer instructions, recursively, until a store is encountered at the root load value address. All the intermediate loads encountered during RSlice build-up is replaced by the corresponding producer instructions- leaving no load and conditional instructions in the generated RSlice.    
+The RSlice \textcolor{red}{(Check defintion of RSlice in text)} profiling entails running AMNESIAC within the region of interest, defined by skipping and running the PinTool for specific number of instructions, generating all the possible RSlices within that region of interest. 
+Having an RSlice corresponding to a load instruction means this load instruction can be replaced by the sequence of instructions defined by the corresponding RSlice. 
+An RSlice generation begins with a load instruction at the root of the slice. 
+Tracking the producer-consumer relationship between the corresponding load value (as the consumer), the producer instruction(s) responsible for generating that load value are added to the corresponding RSlice. 
+The input operands for the producer instructions are generated by replacing the corresponding operands with the respective producer instructions, recursively, until a store is encountered at the root load value address. 
+All the intermediate loads encountered during RSlice build-up is replaced by the corresponding producer instructions, leaving no load and conditional instructions in the generated RSlice.    
+}

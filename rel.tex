@@ -1,3 +1,4 @@
+\ignore{
 {\color{red} Stefanos: I've got this}
 \begin{verbatim}
     1 Making speculation "invisible"
@@ -8,25 +9,56 @@
     3 Other related work?
         [Omit?]
 \end{verbatim}
+}
 
 %\paragraph{First response techniques: delay, hide\&replay, or cleanup?}
 %\paragraph
-\noindent \textbf{First response techniques: delay, hide\&replay, or cleanup?}
-The architecture community proposed a number of techniques to prevent \emph{disclosure gadgets} from revealing secrets. The techniques fall in one of the following three broad categories shown below but each individual proposal has different assumptions as to the threat model (type of speculation shadows covered) and prevention of information leakage (disclosure gadgets).
-\squishlist
-\item{\textbf{Hide\&Replay:}} During speculation, perform memory accesses in a manner that does not perturb any $\mu$--architectural state in the memory system (except DRAM row buffers which is unavoidable {\color{blue}CS: What about closed-page row buffers, as some works claim? Maybe we should avoid talking about DRAM here}); subsequently, perform a replay of the access (when it becomes non-speculative) to affect the correct changes in the $\mu$-architectural state. \emph{Invisispec} (Yan et al.)~\cite{yan_invisispec:MICRO2018} and \emph{Ghost loads} (Sakalis et al.)~\cite{sakalis+:CF2019ghost} were the first such proposals. 
+%\noindent \textbf{First response techniques: delay, hide\&replay, or cleanup?}
+The architecture community promptly proposed a number of techniques (starting with the ground-braking \emph{InvisiSpec} work~\cite{yan_invisispec:MICRO2018}) to prevent \emph{disclosure gadgets} from revealing secrets. 
+The techniques fall in one of the following three broad categories shown below but each individual proposal has different assumptions as to the threat model (type of speculation shadows covered) and prevention of information leakage (disclosure gadgets). 
+It is obvious that at this point no direct comparison is possible but we make an effort to compare the solutions qualitatively.
+
+%\squishlist
+\textbf{Hide\&Replay:} Perform speculative memory accesses in a manner that does not perturb any $\mu$--architectural state in the memory system;
+%(except DRAM row buffers which is unavoidable {\color{blue}CS: What about closed-page row buffers, as some works claim? Maybe we should avoid talking about DRAM here}); 
+subsequently, perform a replay of the access (when it becomes non-speculative) to affect the correct changes in the $\mu$-architectural state. \emph{Invisispec} (Yan et al.)~\cite{yan_invisispec:MICRO2018} and \emph{Ghost loads} (Sakalis et al.)~\cite{sakalis+:CF2019ghost} were the first such proposals. 
 Hide\&Replay techniques, as the first to be proposed, showed a significant cost in performance (and a moderate implementation cost). They only protect against information leaks via the memory hierarchy (and not even all of it, as DRAM leaks are possible~\cite{pessl2016drama}). On the other hand, both of these techniques were designed to protect against attacks on any possible speculation primitive, i.e., cover all the speculative shadows mentioned above. 
-\item{\textbf{Delay:}} Delay speculative changes in $\mu$-architectural state until execution is non-speculative. Sakalis et al. proposed to delay loads that miss in the L1 (\emph{Delay on miss}) until they are non-speculative~\cite{sakalis+:ISCA2019vp}. This delays any $\mu$-state change in the memory hierarchy. A different form of delay (\emph{NDA}) proposed by Weisse et al., is to prevent speculative data propagation by delaying \emph{dependent instructions} from executing with speculative inputs~\cite{weisse2019nda} {\color{blue}CS: TODO: STT and all the other works}. Delay-on-miss protects against \emph{all} speculative shadows (i.e., any possible ``Speculation Primitive'') but delays only changes in the memory hierarchy (including DRAM). Subsequent work, that delays speculative propagation of data~\cite{weisse2019nda} (NDA, Michigan), protects against any $\mu$-architectural state changes (i.e., a much larger gamut of ``disclosure gadgets'' than just the memory hierarchy) but responding only to C-Shadows, i.e., control speculation primitives.
-\item{\textbf{Cleanup:}} Perform a speculative change in $\mu$-architectural state but then \emph{undo} if speculation is squashed. In the first such proposal, \emph{CleanupSpec}, by Sailshwar et al.~\cite{saileshwar2019cleanupspec}, the undo is expensive so its application is restricted to the L1 cache. The rest of the memory hierarchy (L2, LLC, and coherence Directory) is assumed to be protected in other ways, including randomization and delaying of coherence state changes, but DRAM row buffers still remain a security hole.
-Cleanup techniques only protect the L1, assuming--at a cost---that the rest of the hierarchy (excluding DRAM) is protected otherwise~\cite{saileshwar2019cleanupspec}. 
-\squishend
-{\color{red} It is obvious that at this point no direct comparison is possible but we make an effort to compare for the same threat model where possible.}
+
+\textbf{Delay:} Delay speculative changes in $\mu$-architectural state until execution is non-speculative. Sakalis et al. proposed to delay loads that miss in the L1 (\emph{Delay-on-Miss}) until they are non-speculative~\cite{sakalis+:ISCA2019vp}. This delays any $\mu$-state change in the memory hierarchy. A different form of delay (\emph{NDA}) proposed by Weisse et al., is to prevent speculative data propagation by delaying \emph{dependent instructions} from executing with speculative inputs~\cite{weisse2019nda, yu_speculative:MICRO2019-STT, fustos+:DAC2019spectreguard}. Delay-on-Miss protects against \emph{all} speculative shadows (i.e., any possible ``Speculation Primitive'') but delays only changes in the memory hierarchy (including DRAM). Subsequent work, that delays speculative propagation of data~\cite{weisse2019nda}, achieves good performance by protecting against any $\mu$-architectural state changes (i.e., a much larger gamut of ``disclosure gadgets'' than just the memory hierarchy) but responding only to C-Shadows, i.e., control speculation primitives.
+
+\textbf{Cleanup:} Perform a speculative change in $\mu$-architectural state but then \emph{undo} if speculation is squashed. In the first such proposal, \emph{CleanupSpec}, by Sailshwar et al.~\cite{saileshwar2019cleanupspec}, the undo is expensive so its application is restricted to the L1 cache. The rest of the memory hierarchy (L2, LLC, and coherence Directory) is assumed to be protected in other ways, including randomization and delaying of coherence state changes, but DRAM row buffers still remain a security hole.
+Cleanup techniques only protect the L1, assuming---at a cost---that the rest of the hierarchy (excluding DRAM) is protected otherwise~\cite{saileshwar2019cleanupspec}.
 
 
-In~\cite{amnesiac17}, a microarchitecture for  recomputation is introduced. There is a semantic difference between~\cite{amnesiac17} and \arch\ that reveals itself in slice generation and its usage.
+\textbf{(Generic) Recomputation:} Amnesiac~\cite{amnesiac17} introduces a microarchitecture for recomputation that differs from \arch{} in the way slices are generated and their usage.
+%There is a semantic difference between Amnesica and \arch\ that reveals itself in slice generation and its usage.
 %There is a fundamental difference in \rs\ generation and its usage. 
-%\arch\ diverges from Amnesiac when it comes to baking {\rs}s into the binary, as well: 
-The goal in~\cite{amnesiac17} is swapping each energy-hungry
-load with a backward slice to recompute the respective data value (which otherwise
-would be loaded from the memory hierarchy). In this case, the swapped load
-instructions are never performed (i.e., slices in~\cite{amnesiac17} are for values corresponding to loads). However, as opposed to~\cite{amnesiac17}, ... 
+%\arch\ diverges from Amnesiac when it comes to baking {\rs}s into the binary, as well:
+The goal of Amnesiac is to replace as many energy-hungry loads as possible with backward slices that recompute the respective data value. % (which otherwise would be loaded from the memory hierarchy). 
+%In this case, the swapped load instructions are never performed (i.e., slices in~\cite{amnesiac17} are for values corresponding to loads). 
+%However, as opposed to~\cite{amnesiac17}
+In contrast, ISER recomputes slices selectively, such that recomputation is triggered only for shadowed loads that miss in L1.
+
+Kandemir et al., proposed a recomputation-based approach to reduce off-chip memory space in embedded processors~\cite{Kandemir:2005gw}.  
+Koc et al. investigated how recomputation of data residing in memory banks in low-power states can reduce the energy consumption~\cite{Koc:2006ce}, and devised compiler optimizations for scratchpads~\cite{Koc:2007bl} that are limited to array variables.
+The dual of recomputation, \emph{memoization}~\cite{Sodani:1997hn, resistiveComp} replaces computation with table look-ups for pre-computed values (for the ones that are frequent and expensive to recompute). Memoization can mitigate the communication overhead, since table
+look-ups are much cheaper than long-distance data retrieval. 
+Memoization is only effective if the respective computations exhibit significant value locality. 
+Therefore, memoization and recomputation can complement each other in boosting energy efficiency.
+\emph{Idempotent Processors}~\cite{idem} execute programs as a sequence of
+compiler-constructed idempotent (i.e., re-executable without any side effects) code regions.  
+As the name suggests, idempotent regions regenerate the same output regardless of how many times they are executed with the given program state.  
+Generally, idempotent regions are larger, and therefore tend to incur higher overhead for recomputation, while slices for VRC employ fine-grained data recomputation (along a short, independent slices for each value), where each slice contains only the necessary instructions to generate a value. 
+Accordingly, slices for VRC may provide more flexibility than idempotent regions.
+
+Elnawawy et al., demonstrated the applicability of recomputation to loop-based
+code~\cite{Elnawawy2017} to reduce checkpointing overheads. 
+In their proposal, a whole
+loop is (re)executed during recovery, where only the initial state of the loop is
+required to be checkpointed. 
+The loops may contain extra computations that
+are not relevant to the production of the value to be recovered. 
+Compared to such a coarse-grain recomputation,
+slice-based recomputation does not contain any irrelevant instructions. Also, slices used for VRC do not contain load
+instructions, as opposed to~\cite{Elnawawy2017}; and recomputation applies outside of loops provides a wider applicability.
+Although value recomputation has been explored in different contexts before, to the best of our knowledge, none of the prior works have evaluated recomputation in the context of security.
